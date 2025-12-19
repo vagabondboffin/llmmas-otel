@@ -32,7 +32,6 @@ The goal is to provide a lightweight library of **Python decorators/wrappers** t
 - Add `@observe_segment` (phase/segment span)
 - Add `@observe_a2a_receive` (receive span)
 - Add `@observe_tool_call` (tool span)
-- Centralize span creation in a “span factory” (single place that defines span names + required attributes)
 - A second runnable example showing:
   - session → segment → agent_step → A2A send/receive → tool
 - Minimal “integration recipe” docs: where to place decorators in a generic MAS runner
@@ -45,36 +44,31 @@ The goal is to provide a lightweight library of **Python decorators/wrappers** t
 **Deliverables:**
 - Fault spec format (YAML/JSON)
 - Injection engine (matching rules → apply fault)
-- Fault types (initial set): drop / truncate / delay / duplicate / reorder / mutate
+- Fault types: (yet to be decided)
 - Trace annotations for injected faults (attributes + events, e.g., `fault.applied`)
 - Demo: run the same toy MAS with faults on/off and observe trace differences
 
 ---
 
 ### Milestone 3 — SE LLM-MAS integrations (show portability)
-**Goal:** Demonstrate that the library generalizes to real SE agentic systems.
+**Goal:** Demonstrate that the library generalizes to real SE agentic systems. (There’s no shame in aiming big :))
 
 **Deliverables:**
 - ChatDev integration recipe (minimal patch points + demo run)
-- HyperAgent integration recipe (or alternative SE MAS if needed)
-- A unified “trace viewer” walkthrough (how to inspect the hierarchy, edge IDs, message IDs, etc.)
-- Comparative demo: same observability schema across at least 2 systems
+- HyperAgent integration recipe (or any alternative SE LLM-MAS)
 
 ---
 
-### Milestone 4 — Tool-quality release (for public use + submission)
+### Milestone 4 — Release (for public use + submission)
 **Goal:** Make the tool easy to install, run, and evaluate (paper/demo ready).
 
 **Deliverables:**
-- Packaging polish (PyPI-ready), versioned releases, changelog
-- CI (lint + tests + simple trace-shape regression test)
+- Packaging polish
 - Documentation:
   - Quickstart
   - Concepts (span hierarchy + attributes)
   - Integration guides
   - Fault injection guide
-- Demo environment (optional): docker-compose for OTel collector + trace backend
-- Artifact checklist for a tool-track submission (scripts, reproducibility)
 
 ---
 
@@ -86,7 +80,6 @@ The goal is to provide a lightweight library of **Python decorators/wrappers** t
 - Session → agent_step → A2A-send trace hierarchy working on a toy example  
 - Core semantic attributes defined (session, agent, step, edge, message identifiers)
 
-⏭️ **Next:** Start **Milestone 1** (segment span + receive/tool spans + span factory + updated demo)
 
 
 
