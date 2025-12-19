@@ -1,0 +1,16 @@
+[project]
+name = "llmmas-otel"
+version = "0.0.1"
+description = "Framework-agnostic OpenTelemetry observability for LLM-MAS"
+requires-python = ">=3.10"
+dependencies = [
+  "opentelemetry-api>=1.26.0",
+  "opentelemetry-sdk>=1.26.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
