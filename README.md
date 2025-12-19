@@ -88,13 +88,5 @@ The goal is to provide a lightweight library of **Python decorators/wrappers** t
 
 ⏭️ **Next:** Start **Milestone 1** (segment span + receive/tool spans + span factory + updated demo)
 
----
 
-## How to run the Milestone 0 demo
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
-python examples/m0_demo.py
 
