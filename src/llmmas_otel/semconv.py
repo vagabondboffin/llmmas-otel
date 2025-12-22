@@ -12,3 +12,6 @@ ATTR_SOURCE_AGENT_ID = "llmmas.source_agent.id"
 ATTR_TARGET_AGENT_ID = "llmmas.target_agent.id"
 ATTR_EDGE_ID = "llmmas.edge.id"
 ATTR_MESSAGE_ID = "llmmas.message.id"
+
+ATTR_MESSAGE_PREVIEW = "llmmas.message.preview"
+ATTR_MESSAGE_SHA256 = "llmmas.message.sha256"

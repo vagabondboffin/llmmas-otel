@@ -1,4 +1,4 @@
-from llmmas_otel import init_console_tracing, observe_agent_step, observe_a2a_send, observe_session
+from llmmas_otel import init_otlp_tracing, observe_agent_step, observe_a2a_send, observe_session
 
 
 @observe_a2a_send(
@@ -7,6 +7,7 @@ from llmmas_otel import init_console_tracing, observe_agent_step, observe_a2a_se
     edge_id="Planner->Coder",
     message_id="msg-0001",
     channel="requirements",
+    message_body_fn=lambda payload: payload,  # <-- extract body from send_message(payload)
 )
 def send_message(payload: str) -> None:
     # Milestone 0: fake for now :)
@@ -24,5 +25,7 @@ def run() -> None:
 
 
 if __name__ == "__main__":
-    init_console_tracing()
+    # init_console_tracing(service_name="llmmas_otel-m0")
+    init_otlp_tracing(service_name="llmmas-otel-m0", endpoint="http://localhost:4317", insecure=True)
+
     run()
