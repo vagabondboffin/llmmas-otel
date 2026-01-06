@@ -80,6 +80,10 @@ The goal is to provide a lightweight library of **Python decorators/wrappers** t
 - Session → agent_step → A2A-send trace hierarchy working on a toy example  
 - Core semantic attributes defined (session, agent, step, edge, message identifiers)
 
+✅ **Milestone 1 completed**  
+- Session → segment/phase → agent_step → send/process → execute_tool
+- Instruction for using the observability framework
+- new demo 
 
 
 
