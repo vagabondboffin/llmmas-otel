@@ -1,5 +1,8 @@
 from llmmas_otel import init_otlp_tracing, observe_agent_step, observe_a2a_send, observe_session
+from llmmas_otel import enable_message_store
+enable_message_store("out/messages.jsonl")
 
+from llmmas_otel import segment
 
 @observe_a2a_send(
     source_agent_id="Planner",
@@ -21,7 +24,8 @@ def planner_step() -> None:
 
 @observe_session(session_id="session-0001")
 def run() -> None:
-    planner_step()
+    with segment(name="planning", index=0):
+        planner_step()
 
 
 if __name__ == "__main__":
