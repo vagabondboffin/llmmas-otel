@@ -85,5 +85,6 @@ The goal is to provide a lightweight library of **Python decorators/wrappers** t
 - Instruction for using the observability framework
 - new demo 
 
+🔄 **Instrumenting ChatDev with the current library**
 
-
+⏩ **Next: "Fault Injection Overlay"**
