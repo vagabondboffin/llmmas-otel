@@ -20,6 +20,7 @@ demos/chatdev-ollama/
 Submodule repo: `https://github.com/vagabondboffin/ChatDev-Ollama.git`  
 Pinned commit (expected): `c25ae2ea2ecef80d23052450b5e77c9a67926213`
 
+
 ---
 
 ## Prerequisites
