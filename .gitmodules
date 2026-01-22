@@ -1,0 +1,3 @@
+[submodule "demos/chatdev-ollama/ChatDev-Ollama"]
+	path = demos/chatdev-ollama/ChatDev-Ollama
+	url = https://github.com/vagabondboffin/ChatDev-Ollama.git

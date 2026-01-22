@@ -1,0 +1,16 @@
+[
+    {
+        "project_name": "Checkers",
+        "description": "Develop a Checkers (Draughts) game. Use an 8x8 board, alternate turns between two players, and apply standard capture and kinging rules. Prompt for moves in notation (e.g., from-to positions) and update the board state accordingly."
+    },
+    {
+        "project_name": "Sudoku",
+        "description": "Develop a classic Sudoku puzzle game that uses a 9x9 grid. Each row, column, and 3x3 subgrid must contain the digits 1 through 9 exactly once. The program should allow the player to input values for specific cells, check for mistakes, and confirm when the puzzle is completed."
+    },
+    {
+        "project_name": "TheCrossword",
+        "description": "Implement a crossword puzzle. Provide a grid of squares with clues for across and down entries. The user can enter words by specifying the clue number and direction. The application validates if letters match and confirms completion when all correct words are filled in."
+    }
+]
+
+
