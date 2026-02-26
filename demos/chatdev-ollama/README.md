@@ -131,7 +131,7 @@ You should see spans like:
 
 ---
 
-## Troubleshooting
+## Troubleshooting (a.k.a what I struggled with)
 
 ### Jaeger exporter: `StatusCode.UNAVAILABLE`
 - Confirm Jaeger is running:
