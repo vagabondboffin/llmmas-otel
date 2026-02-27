@@ -87,6 +87,12 @@ def write_message(
     target_agent_id: str,
     edge_id: str,
     channel: Optional[str] = None,
+    # --- Optional fields for fault injection analysis ---
+    original_sha256: Optional[str] = None,
+    fault_spec_id: Optional[str] = None,
+    fault_type: Optional[str] = None,
+    fault_decision: Optional[str] = None,
+    dropped: bool = False,
 ) -> None:
     """
     Append a message record to JSONL store, if enabled.
@@ -105,7 +111,17 @@ def write_message(
         "edge_id": edge_id,
         "channel": channel,
         "body": body,
+        "dropped": dropped,
     }
+
+    if original_sha256 is not None:
+        record["original_sha256"] = original_sha256
+    if fault_spec_id is not None:
+        record["fault_spec_id"] = fault_spec_id
+    if fault_type is not None:
+        record["fault_type"] = fault_type
+    if fault_decision is not None:
+        record["fault_decision"] = fault_decision
 
     with open(_config.path, "a", encoding="utf-8") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")

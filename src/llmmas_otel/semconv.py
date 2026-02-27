@@ -29,6 +29,12 @@ ATTR_CHANNEL = "llmmas.channel"
 ATTR_MESSAGE_PREVIEW = "llmmas.message.preview"
 ATTR_MESSAGE_SHA256 = "llmmas.message.sha256"
 
+# Fault injection (proposal-aligned)
+ATTR_FAULT_INJECTED = "llmmas.fault.injected"
+ATTR_FAULT_TYPE = "llmmas.fault.type"
+ATTR_FAULT_SPEC_ID = "llmmas.fault.spec_id"
+ATTR_FAULT_DECISION = "llmmas.fault.decision"
+
 # Tool / environment interaction (GenAI semantic conventions where possible)
 ATTR_GEN_AI_OPERATION_NAME = "gen_ai.operation.name"
 GEN_AI_OPERATION_EXECUTE_TOOL = "execute_tool"

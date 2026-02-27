@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+from llmmas_otel.injection import enable_fault_injection_from_file
+from llmmas_otel.message_store import enable_message_store
+
+enable_fault_injection_from_file("src/llmmas_otel/injection/faults.yaml")
+enable_message_store("out/messages.jsonl")
+
 from dataclasses import dataclass, field
 
 from llmmas_otel.bootstrap import init_otlp_tracing

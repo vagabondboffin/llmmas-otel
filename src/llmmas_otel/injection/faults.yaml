@@ -1,0 +1,12 @@
+faults:
+  - id: F03
+    hook: tool_call
+    selector:
+      tool_name: code_search
+    action:
+      type: tool.malformed_response
+      params:
+        return_value: "<<<NOT JSON>>>"
+    limits:
+      probability: 1.0
+      max_times: 1
