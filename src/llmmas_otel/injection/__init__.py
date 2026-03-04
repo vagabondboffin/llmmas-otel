@@ -6,6 +6,7 @@ from .matcher import selector_matches
 from .spec_engine import SpecFaultEngine
 from .config import enable_fault_injection_from_file
 from .api import enable, disable, enabled
+from .exceptions import LLMFaultError, LLMRateLimitError, LLMNetworkError, LLMTimeoutError
 
 __all__ = [
     "HookType",
@@ -26,8 +27,12 @@ __all__ = [
     "selector_matches",
     "SpecFaultEngine",
     "enable_fault_injection_from_file",
-    # Public API (preferred)
     "enable",
     "disable",
     "enabled",
+    # LLM fault exceptions
+    "LLMFaultError",
+    "LLMRateLimitError",
+    "LLMNetworkError",
+    "LLMTimeoutError",
 ]

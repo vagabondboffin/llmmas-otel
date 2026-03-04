@@ -156,13 +156,6 @@ def observe_tool_call(
     record_args: bool = False,
     record_result: bool = False,
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-    """
-    Observe a tool execution boundary with fault injection support (M2.5).
-
-    - PASS/DELAY: call the underlying function
-    - RETURN: skip the call and return injected return_value
-    - RAISE: raise injected exception (and record exception on the span)
-    """
     def deco(fn: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(fn)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -176,7 +169,6 @@ def observe_tool_call(
                 preview_chars=preview_chars,
                 record_args=record_args,
             ) as ctx:
-                # enforce injected decisions inside the tool span
                 dec = default_span_factory.current_tool_call_decision()
 
                 try:
@@ -202,7 +194,6 @@ def observe_tool_call(
                 else:
                     result = fn(*args, **kwargs)
 
-                # Record result preview/hash if requested
                 if record_result and tool_result_fn is not None:
                     try:
                         tool_result = tool_result_fn(result)
@@ -210,12 +201,82 @@ def observe_tool_call(
                         tool_result = None
                     if tool_result is not None:
                         from . import semconv
-                        import hashlib
                         ctx.span.set_attribute(semconv.ATTR_TOOL_RESULT_PREVIEW, tool_result[:preview_chars])
-                        ctx.span.set_attribute(
-                            semconv.ATTR_TOOL_RESULT_SHA256,
-                            hashlib.sha256(tool_result.encode("utf-8")).hexdigest(),
-                        )
+                        ctx.span.set_attribute(semconv.ATTR_TOOL_RESULT_SHA256, __import__("hashlib").sha256(tool_result.encode("utf-8")).hexdigest())
+
+                return result
+        return wrapper
+    return deco
+
+
+def observe_llm_call(
+    *,
+    provider_name: str,
+    model: str,
+    operation_name: str = "inference",
+    request_id: Optional[str] = None,
+    input_text_fn: Optional[Callable[..., Optional[str]]] = None,
+    preview_chars: int = 200,
+    record_input: bool = True,
+    output_text_fn: Optional[Callable[[Any], Optional[str]]] = None,
+    record_output: bool = False,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    """
+    Observe an LLM call boundary with fault injection support.
+
+    - Span created by SpanFactory.llm_call(...)
+    - PASS/DELAY: calls the underlying function
+    - RETURN: returns injected return_value (skips call)
+    - RAISE: raises injected exception (skips call) and records exception on span
+    """
+    def deco(fn: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(fn)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            input_text: Optional[str] = input_text_fn(*args, **kwargs) if input_text_fn else None
+
+            with default_span_factory.llm_call(
+                provider_name=provider_name,
+                model=model,
+                operation_name=operation_name,
+                request_id=request_id,
+                input_text=input_text,
+                preview_chars=preview_chars,
+                record_input=record_input,
+            ) as ctx:
+                dec = default_span_factory.current_llm_call_decision()
+
+                try:
+                    from .injection import DecisionKind
+                except Exception:
+                    DecisionKind = None  # type: ignore
+
+                if dec is not None and DecisionKind is not None:
+                    if dec.kind == DecisionKind.RAISE:
+                        exc = getattr(dec, "raise_exception", None) or RuntimeError("Injected LLM error")
+                        try:
+                            from opentelemetry.trace.status import Status, StatusCode
+                            ctx.span.record_exception(exc)
+                            ctx.span.set_status(Status(StatusCode.ERROR, str(exc)))
+                        except Exception:
+                            pass
+                        raise exc
+
+                    if dec.kind == DecisionKind.RETURN:
+                        result = getattr(dec, "return_value", None)
+                    else:
+                        result = fn(*args, **kwargs)
+                else:
+                    result = fn(*args, **kwargs)
+
+                if record_output and output_text_fn is not None:
+                    try:
+                        out_text = output_text_fn(result)
+                    except Exception:
+                        out_text = None
+                    if out_text is not None:
+                        from . import semconv
+                        ctx.span.set_attribute(semconv.ATTR_LLM_OUTPUT_PREVIEW, out_text[:preview_chars])
+                        ctx.span.set_attribute(semconv.ATTR_LLM_OUTPUT_SHA256, __import__("hashlib").sha256(out_text.encode("utf-8")).hexdigest())
 
                 return result
         return wrapper

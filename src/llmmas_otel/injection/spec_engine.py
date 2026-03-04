@@ -8,13 +8,10 @@ from .engine import FaultEngine
 from .matcher import selector_matches
 from .spec import FaultSpec
 from .types import HookContext, InjectionDecision, DecisionKind
+from .exceptions import LLMRateLimitError, LLMNetworkError, LLMTimeoutError
 
 
 def _stable_coin_flip(probability: float, *, seed: str, session_id: str, fault_id: str, attempt: int) -> bool:
-    """
-    Deterministic probability check (reproducible across runs):
-    hash(seed | session_id | fault_id | attempt) -> uniform[0,1).
-    """
     if probability >= 1.0:
         return True
     if probability <= 0.0:
@@ -29,16 +26,14 @@ def _stable_coin_flip(probability: float, *, seed: str, session_id: str, fault_i
 @dataclass
 class SpecFaultEngine(FaultEngine):
     """
-    FaultEngine driven by loaded FaultSpec objects.
-    Implements:
-      - selector matching
-      - probability and max_times limits (per session)
-      - action -> InjectionDecision mapping
+    Spec-driven engine.
+    Supports hooks:
+      - A2A_SEND / A2A_RECEIVE
+      - TOOL_CALL
+      - LLM_CALL (M2.8/M3.0)
     """
     specs: list[FaultSpec]
     seed: str = "0"
-
-    # state: (session_id, fault_id) -> count applied
     _counts: dict[tuple[str, str], int] = field(default_factory=dict)
 
     def _session_key(self, ctx: HookContext) -> str:
@@ -66,7 +61,13 @@ class SpecFaultEngine(FaultEngine):
                 continue
 
             attempt = already + 1
-            if not _stable_coin_flip(spec.limits.probability, seed=self.seed, session_id=session_id, fault_id=spec.id, attempt=attempt):
+            if not _stable_coin_flip(
+                spec.limits.probability,
+                seed=self.seed,
+                session_id=session_id,
+                fault_id=spec.id,
+                attempt=attempt,
+            ):
                 continue
 
             decision = self._action_to_decision(spec, ctx, payload)
@@ -81,7 +82,7 @@ class SpecFaultEngine(FaultEngine):
     def _action_to_decision(self, spec: FaultSpec, ctx: HookContext, payload: Optional[str]) -> InjectionDecision:
         t = spec.action.type
 
-        # ---------------- A2A faults (current set) ----------------
+        # ---------------- A2A faults ----------------
         if t == "a2a.drop":
             return InjectionDecision.drop(fault_id=spec.id, fault_type=t)
 
@@ -101,7 +102,7 @@ class SpecFaultEngine(FaultEngine):
             meta = {"original_len": len(payload), "new_len": len(mutated), "max_chars": max_chars}
             return InjectionDecision.mutate(fault_id=spec.id, fault_type=t, mutated_payload=mutated, metadata=meta)
 
-        # ---------------- TOOL faults (M2.5) ----------------
+        # ---------------- TOOL faults ----------------
         if t == "tool.delay":
             ms = spec.action.params.get("delay_ms", spec.action.params.get("ms"))
             if not isinstance(ms, int) or ms < 0:
@@ -119,8 +120,32 @@ class SpecFaultEngine(FaultEngine):
             return InjectionDecision.raise_(fault_id=spec.id, fault_type=t, exc=exc, metadata={"tool_name": tool})
 
         if t == "tool.malformed_response":
-            # allow arbitrary return value; default is a clearly bad string
             val: Any = spec.action.params.get("return_value", spec.action.params.get("value", "MALFORMED_RESPONSE"))
+            meta = {"returned_type": type(val).__name__}
+            return InjectionDecision.return_(fault_id=spec.id, fault_type=t, value=val, metadata=meta)
+
+        # ---------------- LLM faults (M2.8/M3.0) ----------------
+        if t == "llm.delay":
+            ms = spec.action.params.get("delay_ms", spec.action.params.get("ms"))
+            if not isinstance(ms, int) or ms < 0:
+                raise ValueError(f"Fault '{spec.id}': llm.delay requires integer params.delay_ms (or ms) >= 0")
+            return InjectionDecision.delay(fault_id=spec.id, fault_type=t, delay_ms=ms)
+
+        if t == "llm.rate_limit":
+            exc = LLMRateLimitError("Injected LLM rate limit")
+            return InjectionDecision.raise_(fault_id=spec.id, fault_type=t, exc=exc)
+
+        if t == "llm.timeout":
+            exc = LLMTimeoutError("Injected LLM timeout")
+            return InjectionDecision.raise_(fault_id=spec.id, fault_type=t, exc=exc)
+
+        if t == "llm.network_error":
+            exc = LLMNetworkError("Injected LLM network error")
+            return InjectionDecision.raise_(fault_id=spec.id, fault_type=t, exc=exc)
+
+        if t == "llm.malformed_response":
+            # arbitrary return allowed; default is clearly malformed
+            val: Any = spec.action.params.get("return_value", spec.action.params.get("value", "MALFORMED_LLM_RESPONSE"))
             meta = {"returned_type": type(val).__name__}
             return InjectionDecision.return_(fault_id=spec.id, fault_type=t, value=val, metadata=meta)
 

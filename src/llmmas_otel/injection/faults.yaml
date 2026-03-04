@@ -1,12 +1,9 @@
 faults:
-  - id: F03
-    hook: tool_call
-    selector:
-      tool_name: code_search
+  - id: FL1
+    hook: llm_call
+    selector: {}
     action:
-      type: tool.malformed_response
-      params:
-        return_value: "<<<NOT JSON>>>"
+      type: llm.rate_limit
     limits:
       probability: 1.0
       max_times: 1

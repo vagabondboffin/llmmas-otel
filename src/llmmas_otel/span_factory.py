@@ -19,12 +19,9 @@ def _sha256_hex(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-_CURRENT_A2A_RECEIVE_DECISION: ContextVar[Optional[object]] = ContextVar(
-    "llmmas_current_a2a_receive_decision", default=None
-)
-_CURRENT_TOOL_CALL_DECISION: ContextVar[Optional[object]] = ContextVar(
-    "llmmas_current_tool_call_decision", default=None
-)
+_CURRENT_A2A_RECEIVE_DECISION: ContextVar[Optional[object]] = ContextVar("llmmas_current_a2a_receive_decision", default=None)
+_CURRENT_TOOL_CALL_DECISION: ContextVar[Optional[object]] = ContextVar("llmmas_current_tool_call_decision", default=None)
+_CURRENT_LLM_CALL_DECISION: ContextVar[Optional[object]] = ContextVar("llmmas_current_llm_call_decision", default=None)
 
 
 @dataclass(frozen=True)
@@ -41,6 +38,13 @@ class ToolCallContext:
     call_id: str
 
 
+@dataclass(frozen=True)
+class LLMCallContext:
+    span: Span
+    decision: object
+    request_id: str
+
+
 class SpanFactory:
     def __init__(self, tracer_name: str = "llmmas-otel") -> None:
         self._tracer = trace.get_tracer(tracer_name)
@@ -51,6 +55,9 @@ class SpanFactory:
     def current_tool_call_decision(self) -> Optional[object]:
         return _CURRENT_TOOL_CALL_DECISION.get()
 
+    def current_llm_call_decision(self) -> Optional[object]:
+        return _CURRENT_LLM_CALL_DECISION.get()
+
     @contextmanager
     def session(self, *, session_id: str) -> Iterator[Span]:
         with message_store.session_context(session_id):
@@ -59,13 +66,7 @@ class SpanFactory:
                 yield span
 
     @contextmanager
-    def segment(
-        self,
-        *,
-        name: str,
-        order: int = 0,
-        origin: Optional[str] = None,
-    ) -> Iterator[Span]:
+    def segment(self, *, name: str, order: int = 0, origin: Optional[str] = None) -> Iterator[Span]:
         with message_store.segment_context(name=name, order=order):
             with self._tracer.start_as_current_span(semconv.SPAN_SEGMENT) as span:
                 span.set_attribute(semconv.ATTR_SEGMENT_NAME, name)
@@ -267,9 +268,6 @@ class SpanFactory:
             if decision.kind == DecisionKind.DELAY and decision.delay_ms is not None:
                 time.sleep(decision.delay_ms / 1000.0)
 
-            if hasattr(decision, "kind") and getattr(decision.kind, "value", "") == "mutate":
-                effective_body = getattr(decision, "mutated_payload", effective_body)
-
         token = _CURRENT_A2A_RECEIVE_DECISION.set(decision)
 
         span_name = f"{semconv.A2A_OP_PROCESS} {edge_id}"
@@ -359,15 +357,6 @@ class SpanFactory:
         preview_chars: int = 200,
         record_args: bool = False,
     ) -> Iterator[ToolCallContext]:
-        """
-        Tool execution span + fault injection overlay hook.
-
-        - Creates INTERNAL span: "execute_tool {tool_name}"
-        - Applies injection decisions at TOOL_CALL:
-            PASS / DELAY / RAISE / RETURN
-        - Records llmmas.fault.* + fault.applied event on the tool span
-        - Enforcement of RAISE/RETURN is done by the decorator using current_tool_call_decision().
-        """
         seg = message_store.current_segment() or {}
         session_id = message_store.current_session_id()
 
@@ -437,6 +426,101 @@ class SpanFactory:
                 yield ToolCallContext(span=span, decision=decision, call_id=call_id)
         finally:
             _CURRENT_TOOL_CALL_DECISION.reset(token)
+
+    @contextmanager
+    def llm_call(
+        self,
+        *,
+        provider_name: str,
+        model: str,
+        operation_name: str = semconv.GEN_AI_OPERATION_INFERENCE,
+        request_id: Optional[str] = None,
+        input_text: Optional[str] = None,
+        preview_chars: int = 200,
+        record_input: bool = True,
+    ) -> Iterator[LLMCallContext]:
+        """
+        LLM call span + fault injection overlay hook.
+
+        - Span kind: CLIENT
+        - Span name: "{gen_ai.operation.name} {gen_ai.request.model}"
+        - Attributes:
+            gen_ai.operation.name
+            gen_ai.provider.name
+            gen_ai.request.model
+            gen_ai.request.id
+        - Fault injection hook: HookType.LLM_CALL
+            PASS / DELAY / RAISE / RETURN
+          Enforcement of RAISE/RETURN is done by decorator (current_llm_call_decision()).
+        """
+        seg = message_store.current_segment() or {}
+        session_id = message_store.current_session_id()
+
+        rid = request_id or f"llmreq-{uuid.uuid4().hex[:12]}"
+
+        decision = None
+        try:
+            from .injection import HookContext, HookType, get_engine, is_enabled, DecisionKind
+        except Exception:
+            HookContext = None  # type: ignore
+            HookType = None     # type: ignore
+            get_engine = None   # type: ignore
+            is_enabled = lambda: False  # type: ignore
+            DecisionKind = None # type: ignore
+
+        if is_enabled() and HookContext is not None:
+            ctx = HookContext(
+                hook_type=HookType.LLM_CALL,
+                session_id=session_id,
+                phase_name=seg.get("name"),
+                phase_order=seg.get("order"),
+                agent_id=None,
+                tool_name=None,
+                extras={"provider": provider_name, "model": model, "operation": operation_name, "request_id": rid},
+            )
+            decision = get_engine().decide(ctx, payload=input_text)
+
+            if decision.kind == DecisionKind.DELAY and decision.delay_ms is not None:
+                time.sleep(decision.delay_ms / 1000.0)
+
+        token = _CURRENT_LLM_CALL_DECISION.set(decision)
+
+        span_name = f"{operation_name} {model}"
+        try:
+            with self._tracer.start_as_current_span(span_name, kind=SpanKind.CLIENT) as span:
+                span.set_attribute(semconv.ATTR_GEN_AI_OPERATION_NAME, operation_name)
+                span.set_attribute(semconv.ATTR_GEN_AI_PROVIDER_NAME, provider_name)
+                span.set_attribute(semconv.ATTR_GEN_AI_REQUEST_MODEL, model)
+                span.set_attribute(semconv.ATTR_GEN_AI_REQUEST_ID, rid)
+
+                if decision is not None:
+                    try:
+                        from .injection import DecisionKind
+                        if decision.kind != DecisionKind.PASS:
+                            span.set_attribute(semconv.ATTR_FAULT_INJECTED, True)
+                            span.set_attribute(semconv.ATTR_FAULT_TYPE, decision.fault_type or "")
+                            span.set_attribute(semconv.ATTR_FAULT_SPEC_ID, decision.fault_id or "")
+                            span.set_attribute(semconv.ATTR_FAULT_DECISION, str(decision.kind.value))
+                            span.add_event(
+                                "fault.applied",
+                                attributes={
+                                    semconv.ATTR_FAULT_SPEC_ID: decision.fault_id or "",
+                                    semconv.ATTR_FAULT_TYPE: decision.fault_type or "",
+                                    semconv.ATTR_FAULT_DECISION: str(decision.kind.value),
+                                    **(decision.metadata or {}),
+                                    **({"delay_ms": decision.delay_ms} if getattr(decision, "delay_ms", None) is not None else {}),
+                                },
+                            )
+                    except Exception:
+                        pass
+
+                if record_input and input_text is not None:
+                    span.set_attribute(semconv.ATTR_LLM_INPUT_PREVIEW, input_text[:preview_chars])
+                    span.set_attribute(semconv.ATTR_LLM_INPUT_SHA256, _sha256_hex(input_text))
+
+                yield LLMCallContext(span=span, decision=decision, request_id=rid)
+        finally:
+            _CURRENT_LLM_CALL_DECISION.reset(token)
 
 
 default_span_factory = SpanFactory()
