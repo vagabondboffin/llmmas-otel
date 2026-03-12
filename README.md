@@ -2,6 +2,7 @@
 
 Framework-agnostic OpenTelemetry observability and fault injection for LLM-based multi-agent systems.
 ![img.png](img.png)
+
 `llmmas-otel` helps you instrument an existing Python-based LLM-MAS without rewriting the framework itself. It adds structured tracing for workflow execution and supports controlled fault injection at key boundaries such as agent-to-agent messaging, tool calls, and LLM calls.
 
 The package is especially useful for debugging, execution analysis, reliability experiments, and trace-aligned fault-injection studies in LLM-based multi-agent systems.
