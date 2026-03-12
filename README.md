@@ -1,7 +1,7 @@
 # llmmas-otel
 
 Framework-agnostic OpenTelemetry observability and fault injection for LLM-based multi-agent systems.
-
+![img.png](img.png)
 `llmmas-otel` helps you instrument an existing Python-based LLM-MAS without rewriting the framework itself. It adds structured tracing for workflow execution and supports controlled fault injection at key boundaries such as agent-to-agent messaging, tool calls, and LLM calls.
 
 The package is especially useful for debugging, execution analysis, reliability experiments, and trace-aligned fault-injection studies in LLM-based multi-agent systems.
@@ -11,7 +11,6 @@ The package is especially useful for debugging, execution analysis, reliability 
 - **Framework-agnostic instrumentation** for existing Python MAS implementations
 - **OpenTelemetry-native traces** exportable to any OTLP-compatible backend
 - **Structured trace hierarchy** for sessions, workflow phases, agent steps, A2A communication, tool calls, and LLM calls
-- **Agent-to-agent context propagation** using OpenTelemetry carriers
 - **Optional JSONL message store** for full message-body capture during offline analysis
 - **Config-driven fault injection** via YAML or JSON
 - **Low-overhead defaults** with previews and hashes instead of full payload storage unless explicitly enabled
@@ -36,20 +35,6 @@ The current trace model is built around the following execution structure:
 - **LLM call**: an LLM inference boundary
 
 In the current API, `phase(...)` is an alias of `segment(...)`.
-
-## Installation
-
-### From PyPI
-
-```bash
-pip install llmmas-otel
-```
-
-### From source
-
-```bash
-pip install -e .
-```
 
 ## Requirements
 
