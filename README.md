@@ -3,7 +3,6 @@
 Framework-agnostic OpenTelemetry observability and fault injection for LLM-based multi-agent systems.
 ![img.png](img.png)
 
-
 `llmmas-otel` helps you instrument an existing Python-based LLM-MAS without rewriting the framework itself. It adds structured tracing for workflow execution and supports controlled fault injection at key boundaries such as agent-to-agent messaging, tool calls, and LLM calls.
 
 The package is especially useful for debugging, execution analysis, reliability experiments, and trace-aligned fault-injection studies in LLM-based multi-agent systems.
@@ -15,6 +14,7 @@ The package is especially useful for debugging, execution analysis, reliability 
 - **Structured trace hierarchy** for sessions, workflow phases, agent steps, A2A communication, tool calls, and LLM calls
 - **Optional JSONL message store** for full message-body capture during offline analysis
 - **Config-driven fault injection** via YAML or JSON
+- **Optional fault trace visibility control** so injected faults can be either visible or hidden in spans/events
 - **Low-overhead defaults** with previews and hashes instead of full payload storage unless explicitly enabled
 - **Reusable semantic conventions** for consistent analysis across runs and systems
 
@@ -166,23 +166,42 @@ if __name__ == "__main__":
 ```python
 from llmmas_otel import enable_fault_injection, disable_fault_injection
 
-enable_fault_injection("faults.yaml", seed="exp-01")
+# Faults enabled and visible in spans/events
+enable_fault_injection("faults.yaml", seed="exp-01", trace_visible=True)
+
+# Faults enabled but hidden from spans/events
+enable_fault_injection("faults.yaml", seed="exp-01", trace_visible=False)
+
 # ...
 disable_fault_injection()
 ```
+
+### Trace visibility
+
+Fault injection supports a visibility switch:
+
+- `trace_visible=True`: injected faults are explicitly annotated in traces
+- `trace_visible=False`: faults are still injected, but fault markers are hidden from spans/events
+
+When `trace_visible=False`, the framework does **not** add:
+
+- `llmmas.fault.*` span attributes
+- `fault.applied` span events
+
+This is useful for tasks such as fault localization, where you may want a faulty execution without revealing the injected fault directly in the trace.
 
 ### Example fault specification
 
 ```yaml
 faults:
-  - id: A2A_DELAY_1
-    hook: a2a_send
+  - id: A2A_TRUNCATE_1
+    hook: a2a_receive
     selector:
       edge_id: ceo->cto
     action:
-      type: a2a.delay
+      type: a2a.truncate
       params:
-        delay_ms: 1500
+        max_chars: 40
     limits:
       probability: 1.0
       max_times: 1
@@ -280,6 +299,8 @@ Each JSONL record contains execution context such as:
 
 When fault injection is active, message records can also include fault metadata such as fault ID, fault type, decision type, mutation origin, or drop markers.
 
+When `trace_visible=False`, the message store can still preserve fault ground truth for offline analysis even though the fault is hidden from spans and events.
+
 ## Public API
 
 ### Instrumentation decorators and context managers
@@ -302,9 +323,10 @@ When fault injection is active, message records can also include fault metadata 
 
 ### Fault injection
 
-- `enable_fault_injection(path, seed="0")`
+- `enable_fault_injection(path, seed="0", trace_visible=True)`
 - `disable_fault_injection()`
-- `fault_injection_enabled()`
+- `set_fault_trace_visibility(visible)`
+- `is_fault_trace_visible()`
 
 ## Semantic conventions
 
@@ -362,5 +384,3 @@ This project is currently an early-stage release (`0.0.1`) focused on:
 - research and debugging workflows
 
 The API may evolve as the project matures.
-
-

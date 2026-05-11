@@ -19,9 +19,18 @@ def _sha256_hex(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-_CURRENT_A2A_RECEIVE_DECISION: ContextVar[Optional[object]] = ContextVar("llmmas_current_a2a_receive_decision", default=None)
-_CURRENT_TOOL_CALL_DECISION: ContextVar[Optional[object]] = ContextVar("llmmas_current_tool_call_decision", default=None)
-_CURRENT_LLM_CALL_DECISION: ContextVar[Optional[object]] = ContextVar("llmmas_current_llm_call_decision", default=None)
+_CURRENT_A2A_RECEIVE_DECISION: ContextVar[Optional[object]] = ContextVar(
+    "llmmas_current_a2a_receive_decision",
+    default=None,
+)
+_CURRENT_TOOL_CALL_DECISION: ContextVar[Optional[object]] = ContextVar(
+    "llmmas_current_tool_call_decision",
+    default=None,
+)
+_CURRENT_LLM_CALL_DECISION: ContextVar[Optional[object]] = ContextVar(
+    "llmmas_current_llm_call_decision",
+    default=None,
+)
 
 
 @dataclass(frozen=True)
@@ -45,6 +54,51 @@ class LLMCallContext:
     request_id: str
 
 
+def _fault_trace_visibility_enabled() -> bool:
+    try:
+        from .injection import is_fault_trace_visible
+        return is_fault_trace_visible()
+    except Exception:
+        return True
+
+
+def _annotate_fault_on_span(span: Span, decision: object) -> None:
+    if decision is None or not _fault_trace_visibility_enabled():
+        return
+
+    try:
+        from .injection import DecisionKind
+    except Exception:
+        return
+
+    if getattr(decision, "kind", None) == DecisionKind.PASS:
+        return
+
+    span.set_attribute(semconv.ATTR_FAULT_INJECTED, True)
+    span.set_attribute(semconv.ATTR_FAULT_TYPE, getattr(decision, "fault_type", None) or "")
+    span.set_attribute(semconv.ATTR_FAULT_SPEC_ID, getattr(decision, "fault_id", None) or "")
+    span.set_attribute(
+        semconv.ATTR_FAULT_DECISION,
+        str(getattr(getattr(decision, "kind", None), "value", "")),
+    )
+    span.add_event(
+        "fault.applied",
+        attributes={
+            semconv.ATTR_FAULT_SPEC_ID: getattr(decision, "fault_id", None) or "",
+            semconv.ATTR_FAULT_TYPE: getattr(decision, "fault_type", None) or "",
+            semconv.ATTR_FAULT_DECISION: str(
+                getattr(getattr(decision, "kind", None), "value", "")
+            ),
+            **(getattr(decision, "metadata", None) or {}),
+            **(
+                {"delay_ms": getattr(decision, "delay_ms", None)}
+                if getattr(decision, "delay_ms", None) is not None
+                else {}
+            ),
+        },
+    )
+
+
 class SpanFactory:
     def __init__(self, tracer_name: str = "llmmas-otel") -> None:
         self._tracer = trace.get_tracer(tracer_name)
@@ -66,7 +120,13 @@ class SpanFactory:
                 yield span
 
     @contextmanager
-    def segment(self, *, name: str, order: int = 0, origin: Optional[str] = None) -> Iterator[Span]:
+    def segment(
+        self,
+        *,
+        name: str,
+        order: int = 0,
+        origin: Optional[str] = None,
+    ) -> Iterator[Span]:
         with message_store.segment_context(name=name, order=order):
             with self._tracer.start_as_current_span(semconv.SPAN_SEGMENT) as span:
                 span.set_attribute(semconv.ATTR_SEGMENT_NAME, name)
@@ -108,11 +168,11 @@ class SpanFactory:
         try:
             from .injection import HookContext, HookType, get_engine, is_enabled, DecisionKind
         except Exception:
-            HookContext = None  # type: ignore
-            HookType = None     # type: ignore
-            get_engine = None   # type: ignore
-            is_enabled = lambda: False  # type: ignore
-            DecisionKind = None # type: ignore
+            HookContext = None
+            HookType = None
+            get_engine = None
+            is_enabled = lambda: False
+            DecisionKind = None
 
         if is_enabled() and HookContext is not None:
             ctx = HookContext(
@@ -138,10 +198,7 @@ class SpanFactory:
                 original_sha = _sha256_hex(message_body)
                 effective_body = decision.mutated_payload
                 if apply_mutation is not None and effective_body is not None:
-                    try:
-                        apply_mutation(effective_body)
-                    except Exception:
-                        pass
+                    apply_mutation(effective_body)
 
         span_name = f"{semconv.A2A_OP_SEND} {edge_id}"
         with self._tracer.start_as_current_span(span_name, kind=SpanKind.PRODUCER) as span:
@@ -152,26 +209,7 @@ class SpanFactory:
             if channel is not None:
                 span.set_attribute(semconv.ATTR_CHANNEL, channel)
 
-            if decision is not None:
-                try:
-                    from .injection import DecisionKind
-                    if decision.kind != DecisionKind.PASS:
-                        span.set_attribute(semconv.ATTR_FAULT_INJECTED, True)
-                        span.set_attribute(semconv.ATTR_FAULT_TYPE, decision.fault_type or "")
-                        span.set_attribute(semconv.ATTR_FAULT_SPEC_ID, decision.fault_id or "")
-                        span.set_attribute(semconv.ATTR_FAULT_DECISION, str(decision.kind.value))
-                        span.add_event(
-                            "fault.applied",
-                            attributes={
-                                semconv.ATTR_FAULT_SPEC_ID: decision.fault_id or "",
-                                semconv.ATTR_FAULT_TYPE: decision.fault_type or "",
-                                semconv.ATTR_FAULT_DECISION: str(decision.kind.value),
-                                **(decision.metadata or {}),
-                                **({"delay_ms": decision.delay_ms} if getattr(decision, "delay_ms", None) is not None else {}),
-                            },
-                        )
-                except Exception:
-                    pass
+            _annotate_fault_on_span(span, decision)
 
             if propagate_context and carrier is not None:
                 propagate.inject(carrier)
@@ -191,10 +229,21 @@ class SpanFactory:
                         edge_id=edge_id,
                         channel=channel,
                         original_sha256=original_sha,
-                        fault_spec_id=getattr(decision, "fault_id", None) if decision is not None else None,
-                        fault_type=getattr(decision, "fault_type", None) if decision is not None else None,
-                        fault_decision=str(getattr(decision, "kind", "pass")) if decision is not None else None,
-                        dropped=(getattr(decision, "kind", None).value == "drop") if decision is not None and hasattr(getattr(decision, "kind", None), "value") else False,
+                        fault_spec_id=getattr(decision, "fault_id", None)
+                        if decision is not None
+                        else None,
+                        fault_type=getattr(decision, "fault_type", None)
+                        if decision is not None
+                        else None,
+                        fault_decision=str(getattr(decision, "kind", "pass"))
+                        if decision is not None
+                        else None,
+                        dropped=(
+                            getattr(decision, "kind", None).value == "drop"
+                            if decision is not None
+                            and hasattr(getattr(decision, "kind", None), "value")
+                            else False
+                        ),
                     )
 
                 span.set_attribute(semconv.ATTR_MESSAGE_PREVIEW, preview)
@@ -244,11 +293,11 @@ class SpanFactory:
         try:
             from .injection import HookContext, HookType, get_engine, is_enabled, DecisionKind
         except Exception:
-            HookContext = None  # type: ignore
-            HookType = None     # type: ignore
-            get_engine = None   # type: ignore
-            is_enabled = lambda: False  # type: ignore
-            DecisionKind = None # type: ignore
+            HookContext = None
+            HookType = None
+            get_engine = None
+            is_enabled = lambda: False
+            DecisionKind = None
 
         if is_enabled() and HookContext is not None:
             ctx = HookContext(
@@ -268,11 +317,20 @@ class SpanFactory:
             if decision.kind == DecisionKind.DELAY and decision.delay_ms is not None:
                 time.sleep(decision.delay_ms / 1000.0)
 
+            if decision.kind == DecisionKind.MUTATE:
+                if message_body is None:
+                    raise ValueError("Fault injection MUTATE requires message_body (string)")
+                effective_body = decision.mutated_payload
+
         token = _CURRENT_A2A_RECEIVE_DECISION.set(decision)
 
         span_name = f"{semconv.A2A_OP_PROCESS} {edge_id}"
         try:
-            with self._tracer.start_as_current_span(span_name, kind=SpanKind.CONSUMER, links=links) as span:
+            with self._tracer.start_as_current_span(
+                span_name,
+                kind=SpanKind.CONSUMER,
+                links=links,
+            ) as span:
                 span.set_attribute(semconv.ATTR_SOURCE_AGENT_ID, source_agent_id)
                 span.set_attribute(semconv.ATTR_TARGET_AGENT_ID, target_agent_id)
                 span.set_attribute(semconv.ATTR_EDGE_ID, edge_id)
@@ -280,26 +338,7 @@ class SpanFactory:
                 if channel is not None:
                     span.set_attribute(semconv.ATTR_CHANNEL, channel)
 
-                if decision is not None:
-                    try:
-                        from .injection import DecisionKind
-                        if decision.kind != DecisionKind.PASS:
-                            span.set_attribute(semconv.ATTR_FAULT_INJECTED, True)
-                            span.set_attribute(semconv.ATTR_FAULT_TYPE, decision.fault_type or "")
-                            span.set_attribute(semconv.ATTR_FAULT_SPEC_ID, decision.fault_id or "")
-                            span.set_attribute(semconv.ATTR_FAULT_DECISION, str(decision.kind.value))
-                            span.add_event(
-                                "fault.applied",
-                                attributes={
-                                    semconv.ATTR_FAULT_SPEC_ID: decision.fault_id or "",
-                                    semconv.ATTR_FAULT_TYPE: decision.fault_type or "",
-                                    semconv.ATTR_FAULT_DECISION: str(decision.kind.value),
-                                    **(decision.metadata or {}),
-                                    **({"delay_ms": decision.delay_ms} if getattr(decision, "delay_ms", None) is not None else {}),
-                                },
-                            )
-                    except Exception:
-                        pass
+                _annotate_fault_on_span(span, decision)
 
                 if effective_body is not None:
                     preview = effective_body[:preview_chars]
@@ -322,9 +361,15 @@ class SpanFactory:
                             target_agent_id=target_agent_id,
                             edge_id=edge_id,
                             channel=channel,
-                            fault_spec_id=getattr(decision, "fault_id", None) if decision is not None else None,
-                            fault_type=getattr(decision, "fault_type", None) if decision is not None else None,
-                            fault_decision=str(getattr(decision, "kind", "pass")) if decision is not None else None,
+                            fault_spec_id=getattr(decision, "fault_id", None)
+                            if decision is not None
+                            else None,
+                            fault_type=getattr(decision, "fault_type", None)
+                            if decision is not None
+                            else None,
+                            fault_decision=str(getattr(decision, "kind", "pass"))
+                            if decision is not None
+                            else None,
                             dropped=dropped,
                         )
 
@@ -366,11 +411,11 @@ class SpanFactory:
         try:
             from .injection import HookContext, HookType, get_engine, is_enabled, DecisionKind
         except Exception:
-            HookContext = None  # type: ignore
-            HookType = None     # type: ignore
-            get_engine = None   # type: ignore
-            is_enabled = lambda: False  # type: ignore
-            DecisionKind = None # type: ignore
+            HookContext = None
+            HookType = None
+            get_engine = None
+            is_enabled = lambda: False
+            DecisionKind = None
 
         if is_enabled() and HookContext is not None:
             ctx = HookContext(
@@ -391,37 +436,30 @@ class SpanFactory:
 
         span_name = f"{semconv.GEN_AI_OPERATION_EXECUTE_TOOL} {tool_name}"
         try:
-            with self._tracer.start_as_current_span(span_name, kind=SpanKind.INTERNAL) as span:
-                span.set_attribute(semconv.ATTR_GEN_AI_OPERATION_NAME, semconv.GEN_AI_OPERATION_EXECUTE_TOOL)
+            with self._tracer.start_as_current_span(
+                span_name,
+                kind=SpanKind.INTERNAL,
+            ) as span:
+                span.set_attribute(
+                    semconv.ATTR_GEN_AI_OPERATION_NAME,
+                    semconv.GEN_AI_OPERATION_EXECUTE_TOOL,
+                )
                 span.set_attribute(semconv.ATTR_GEN_AI_TOOL_NAME, tool_name)
                 span.set_attribute(semconv.ATTR_GEN_AI_TOOL_CALL_ID, call_id)
                 if tool_type is not None:
                     span.set_attribute(semconv.ATTR_GEN_AI_TOOL_TYPE, tool_type)
 
                 if record_args and tool_args is not None:
-                    span.set_attribute(semconv.ATTR_TOOL_ARGS_PREVIEW, tool_args[:preview_chars])
-                    span.set_attribute(semconv.ATTR_TOOL_ARGS_SHA256, _sha256_hex(tool_args))
+                    span.set_attribute(
+                        semconv.ATTR_TOOL_ARGS_PREVIEW,
+                        tool_args[:preview_chars],
+                    )
+                    span.set_attribute(
+                        semconv.ATTR_TOOL_ARGS_SHA256,
+                        _sha256_hex(tool_args),
+                    )
 
-                if decision is not None:
-                    try:
-                        from .injection import DecisionKind
-                        if decision.kind != DecisionKind.PASS:
-                            span.set_attribute(semconv.ATTR_FAULT_INJECTED, True)
-                            span.set_attribute(semconv.ATTR_FAULT_TYPE, decision.fault_type or "")
-                            span.set_attribute(semconv.ATTR_FAULT_SPEC_ID, decision.fault_id or "")
-                            span.set_attribute(semconv.ATTR_FAULT_DECISION, str(decision.kind.value))
-                            span.add_event(
-                                "fault.applied",
-                                attributes={
-                                    semconv.ATTR_FAULT_SPEC_ID: decision.fault_id or "",
-                                    semconv.ATTR_FAULT_TYPE: decision.fault_type or "",
-                                    semconv.ATTR_FAULT_DECISION: str(decision.kind.value),
-                                    **(decision.metadata or {}),
-                                    **({"delay_ms": decision.delay_ms} if getattr(decision, "delay_ms", None) is not None else {}),
-                                },
-                            )
-                    except Exception:
-                        pass
+                _annotate_fault_on_span(span, decision)
 
                 yield ToolCallContext(span=span, decision=decision, call_id=call_id)
         finally:
@@ -439,20 +477,6 @@ class SpanFactory:
         preview_chars: int = 200,
         record_input: bool = True,
     ) -> Iterator[LLMCallContext]:
-        """
-        LLM call span + fault injection overlay hook.
-
-        - Span kind: CLIENT
-        - Span name: "{gen_ai.operation.name} {gen_ai.request.model}"
-        - Attributes:
-            gen_ai.operation.name
-            gen_ai.provider.name
-            gen_ai.request.model
-            gen_ai.request.id
-        - Fault injection hook: HookType.LLM_CALL
-            PASS / DELAY / RAISE / RETURN
-          Enforcement of RAISE/RETURN is done by decorator (current_llm_call_decision()).
-        """
         seg = message_store.current_segment() or {}
         session_id = message_store.current_session_id()
 
@@ -462,11 +486,11 @@ class SpanFactory:
         try:
             from .injection import HookContext, HookType, get_engine, is_enabled, DecisionKind
         except Exception:
-            HookContext = None  # type: ignore
-            HookType = None     # type: ignore
-            get_engine = None   # type: ignore
-            is_enabled = lambda: False  # type: ignore
-            DecisionKind = None # type: ignore
+            HookContext = None
+            HookType = None
+            get_engine = None
+            is_enabled = lambda: False
+            DecisionKind = None
 
         if is_enabled() and HookContext is not None:
             ctx = HookContext(
@@ -476,7 +500,12 @@ class SpanFactory:
                 phase_order=seg.get("order"),
                 agent_id=None,
                 tool_name=None,
-                extras={"provider": provider_name, "model": model, "operation": operation_name, "request_id": rid},
+                extras={
+                    "provider": provider_name,
+                    "model": model,
+                    "operation": operation_name,
+                    "request_id": rid,
+                },
             )
             decision = get_engine().decide(ctx, payload=input_text)
 
@@ -487,36 +516,26 @@ class SpanFactory:
 
         span_name = f"{operation_name} {model}"
         try:
-            with self._tracer.start_as_current_span(span_name, kind=SpanKind.CLIENT) as span:
+            with self._tracer.start_as_current_span(
+                span_name,
+                kind=SpanKind.CLIENT,
+            ) as span:
                 span.set_attribute(semconv.ATTR_GEN_AI_OPERATION_NAME, operation_name)
                 span.set_attribute(semconv.ATTR_GEN_AI_PROVIDER_NAME, provider_name)
                 span.set_attribute(semconv.ATTR_GEN_AI_REQUEST_MODEL, model)
                 span.set_attribute(semconv.ATTR_GEN_AI_REQUEST_ID, rid)
 
-                if decision is not None:
-                    try:
-                        from .injection import DecisionKind
-                        if decision.kind != DecisionKind.PASS:
-                            span.set_attribute(semconv.ATTR_FAULT_INJECTED, True)
-                            span.set_attribute(semconv.ATTR_FAULT_TYPE, decision.fault_type or "")
-                            span.set_attribute(semconv.ATTR_FAULT_SPEC_ID, decision.fault_id or "")
-                            span.set_attribute(semconv.ATTR_FAULT_DECISION, str(decision.kind.value))
-                            span.add_event(
-                                "fault.applied",
-                                attributes={
-                                    semconv.ATTR_FAULT_SPEC_ID: decision.fault_id or "",
-                                    semconv.ATTR_FAULT_TYPE: decision.fault_type or "",
-                                    semconv.ATTR_FAULT_DECISION: str(decision.kind.value),
-                                    **(decision.metadata or {}),
-                                    **({"delay_ms": decision.delay_ms} if getattr(decision, "delay_ms", None) is not None else {}),
-                                },
-                            )
-                    except Exception:
-                        pass
+                _annotate_fault_on_span(span, decision)
 
                 if record_input and input_text is not None:
-                    span.set_attribute(semconv.ATTR_LLM_INPUT_PREVIEW, input_text[:preview_chars])
-                    span.set_attribute(semconv.ATTR_LLM_INPUT_SHA256, _sha256_hex(input_text))
+                    span.set_attribute(
+                        semconv.ATTR_LLM_INPUT_PREVIEW,
+                        input_text[:preview_chars],
+                    )
+                    span.set_attribute(
+                        semconv.ATTR_LLM_INPUT_SHA256,
+                        _sha256_hex(input_text),
+                    )
 
                 yield LLMCallContext(span=span, decision=decision, request_id=rid)
         finally:
