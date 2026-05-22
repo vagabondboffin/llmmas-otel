@@ -1,0 +1,14 @@
+faults:
+  - id: A2_A2A_DELAY
+    hook: a2a_send
+    selector:
+      phase_name: planning
+      source_agent_id: Planner
+      target_agent_id: Coder
+    action:
+      type: a2a.delay
+      params:
+        delay_ms: 1000
+    limits:
+      probability: 1.0
+      max_times: 1

@@ -1,0 +1,4135 @@
+{
+  "meta": {
+    "dataset": "examples/programdev_dataset.json",
+    "limit": 30,
+    "model": "llama2",
+    "delay_ms": 1000,
+    "seed": "icst",
+    "repeats": 3,
+    "generated_at_unix": 1773180463.715303
+  },
+  "scenarios": {
+    "baseline": {
+      "faults_yaml": null
+    },
+    "a1_llm_delay": {
+      "faults_yaml": "\nfaults:\n  - id: A1_LLM_DELAY\n    hook: llm_call\n    selector:\n      phase_name: planning\n    action:\n      type: llm.delay\n      params:\n        delay_ms: 1000\n    limits:\n      probability: 1.0\n      max_times: 1\n",
+      "faults_file": "out/faults_a1_llm_delay.yaml"
+    },
+    "a2_a2a_delay": {
+      "faults_yaml": "\nfaults:\n  - id: A2_A2A_DELAY\n    hook: a2a_send\n    selector:\n      phase_name: planning\n      source_agent_id: Planner\n      target_agent_id: Coder\n    action:\n      type: a2a.delay\n      params:\n        delay_ms: 1000\n    limits:\n      probability: 1.0\n      max_times: 1\n",
+      "faults_file": "out/faults_a2_a2a_delay.yaml"
+    }
+  },
+  "artifacts": {
+    "runs": {
+      "baseline": [
+        {
+          "run_id": "r01",
+          "traces": "out/traces_baseline_r01.json",
+          "messages": "out/messages_baseline_r01.jsonl"
+        },
+        {
+          "run_id": "r02",
+          "traces": "out/traces_baseline_r02.json",
+          "messages": "out/messages_baseline_r02.jsonl"
+        },
+        {
+          "run_id": "r03",
+          "traces": "out/traces_baseline_r03.json",
+          "messages": "out/messages_baseline_r03.jsonl"
+        }
+      ],
+      "a1_llm_delay": [
+        {
+          "run_id": "r01",
+          "traces": "out/traces_a1_llm_delay_r01.json",
+          "messages": "out/messages_a1_llm_delay_r01.jsonl"
+        },
+        {
+          "run_id": "r02",
+          "traces": "out/traces_a1_llm_delay_r02.json",
+          "messages": "out/messages_a1_llm_delay_r02.jsonl"
+        },
+        {
+          "run_id": "r03",
+          "traces": "out/traces_a1_llm_delay_r03.json",
+          "messages": "out/messages_a1_llm_delay_r03.jsonl"
+        }
+      ],
+      "a2_a2a_delay": [
+        {
+          "run_id": "r01",
+          "traces": "out/traces_a2_a2a_delay_r01.json",
+          "messages": "out/messages_a2_a2a_delay_r01.jsonl"
+        },
+        {
+          "run_id": "r02",
+          "traces": "out/traces_a2_a2a_delay_r02.json",
+          "messages": "out/messages_a2_a2a_delay_r02.jsonl"
+        },
+        {
+          "run_id": "r03",
+          "traces": "out/traces_a2_a2a_delay_r03.json",
+          "messages": "out/messages_a2_a2a_delay_r03.jsonl"
+        }
+      ]
+    }
+  },
+  "results": {
+    "programdev-demo::2048": {
+      "baseline": {
+        "session_ms": {
+          "median": 32381.189,
+          "q1": 32291.790999999997,
+          "q3": 32383.375999999997,
+          "iqr": 91.58499999999913,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 32379.546000000002,
+          "q1": 32289.682,
+          "q3": 32380.968,
+          "iqr": 91.28600000000006,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 33418.337,
+          "q1": 33214.5625,
+          "q3": 33920.8355,
+          "iqr": 706.273000000001,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 32411.023,
+          "q1": 32208.589500000002,
+          "q3": 32913.992,
+          "iqr": 705.4024999999965,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1032.7740000000013,
+          "q1": 831.1865000000016,
+          "q3": 1626.857500000002,
+          "iqr": 795.6710000000003,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0327740000000012,
+          "q1": 0.8311865000000016,
+          "q3": 1.6268575000000018,
+          "iqr": 0.7956710000000002,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 33541.107,
+          "q1": 33272.4265,
+          "q3": 33724.521,
+          "iqr": 452.09449999999924,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 32527.839999999997,
+          "q1": 32263.268999999997,
+          "q3": 32715.1465,
+          "iqr": 451.8775000000023,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1159.9180000000051,
+          "q1": 980.6355000000021,
+          "q3": 1341.1450000000023,
+          "iqr": 360.5095000000001,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.1599180000000051,
+          "q1": 0.9806355000000022,
+          "q3": 1.3411450000000023,
+          "iqr": 0.36050950000000004,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::BudgetTracker": {
+      "baseline": {
+        "session_ms": {
+          "median": 31976.528,
+          "q1": 31730.6825,
+          "q3": 32117.701,
+          "iqr": 387.01850000000195,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 31974.296000000002,
+          "q1": 31727.608,
+          "q3": 32115.84,
+          "iqr": 388.23199999999997,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 32912.008,
+          "q1": 32735.04,
+          "q3": 32935.278000000006,
+          "iqr": 200.23800000000483,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 31909.184,
+          "q1": 31732.4065,
+          "q3": 31928.491,
+          "iqr": 196.08450000000084,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 982.0200000000041,
+          "q1": 817.577000000003,
+          "q3": 1027.6275000000023,
+          "iqr": 210.05049999999937,
+          "n": 3
+        },
+        "amplification": {
+          "median": 0.9820200000000041,
+          "q1": 0.817577000000003,
+          "q3": 1.0276275000000024,
+          "iqr": 0.21005049999999936,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 33059.674,
+          "q1": 32982.1035,
+          "q3": 33075.9465,
+          "iqr": 93.84300000000076,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 32045.618000000002,
+          "q1": 31973.0255,
+          "q3": 32066.4965,
+          "iqr": 93.47100000000137,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1115.690999999999,
+          "q1": 880.6750000000011,
+          "q3": 1345.2639999999992,
+          "iqr": 464.5889999999981,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.1156909999999989,
+          "q1": 0.8806750000000011,
+          "q3": 1.3452639999999993,
+          "iqr": 0.46458899999999825,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::CandyCrush": {
+      "baseline": {
+        "session_ms": {
+          "median": 29248.763,
+          "q1": 29208.5275,
+          "q3": 29429.317,
+          "iqr": 220.78949999999895,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 29247.6,
+          "q1": 29207.206,
+          "q3": 29427.6145,
+          "iqr": 220.40850000000137,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 30650.614,
+          "q1": 30453.3485,
+          "q3": 31422.966500000002,
+          "iqr": 969.6180000000022,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 29640.585,
+          "q1": 29445.4875,
+          "q3": 30416.197,
+          "iqr": 970.7095000000008,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1040.7430000000022,
+          "q1": 1024.031500000001,
+          "q3": 2033.8850000000002,
+          "iqr": 1009.8534999999993,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0407430000000022,
+          "q1": 1.0240315000000009,
+          "q3": 2.033885,
+          "iqr": 1.0098534999999993,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 30784.624,
+          "q1": 30528.970999999998,
+          "q3": 40553.722,
+          "iqr": 10024.751000000004,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 29774.622,
+          "q1": 29521.576500000003,
+          "q3": 39542.526,
+          "iqr": 10020.949499999995,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1535.8610000000008,
+          "q1": 1320.4434999999994,
+          "q3": 11124.405,
+          "iqr": 9803.961500000001,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.5358610000000008,
+          "q1": 1.3204434999999994,
+          "q3": 11.124405000000001,
+          "iqr": 9.803961500000002,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::Checkers": {
+      "baseline": {
+        "session_ms": {
+          "median": 22877.472,
+          "q1": 22821.5885,
+          "q3": 31113.967,
+          "iqr": 8292.378499999999,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 22875.049,
+          "q1": 22819.057999999997,
+          "q3": 31111.006999999998,
+          "iqr": 8291.949,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 23739.37,
+          "q1": 23664.925,
+          "q3": 23760.6535,
+          "iqr": 95.72850000000108,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 22735.035,
+          "q1": 22656.718,
+          "q3": 22756.648,
+          "iqr": 99.93000000000029,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 713.007999999998,
+          "q1": -7449.042000000001,
+          "q3": 864.619999999999,
+          "iqr": 8313.662,
+          "n": 3
+        },
+        "amplification": {
+          "median": 0.713007999999998,
+          "q1": -7.449042000000001,
+          "q3": 0.8646199999999991,
+          "iqr": 8.313662,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 23853.195,
+          "q1": 23811.067,
+          "q3": 23857.692,
+          "iqr": 46.625,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 22841.607,
+          "q1": 22800.843,
+          "q3": 22847.486,
+          "iqr": 46.64300000000003,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 975.7229999999981,
+          "q1": -7256.2750000000015,
+          "q3": 989.4784999999974,
+          "iqr": 8245.753499999999,
+          "n": 3
+        },
+        "amplification": {
+          "median": 0.9757229999999981,
+          "q1": -7.256275000000001,
+          "q3": 0.9894784999999975,
+          "iqr": 8.2457535,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::Chess": {
+      "baseline": {
+        "session_ms": {
+          "median": 27518.986,
+          "q1": 27419.6735,
+          "q3": 27571.6715,
+          "iqr": 151.9979999999996,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27517.14,
+          "q1": 27417.6985,
+          "q3": 27569.457000000002,
+          "iqr": 151.75850000000355,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 28658.833,
+          "q1": 28486.567,
+          "q3": 28873.0025,
+          "iqr": 386.4354999999996,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27646.645,
+          "q1": 27473.701500000003,
+          "q3": 27865.097,
+          "iqr": 391.3954999999987,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1034.4759999999987,
+          "q1": 1014.2079999999987,
+          "q3": 1301.3309999999983,
+          "iqr": 287.1229999999996,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0344759999999988,
+          "q1": 1.0142079999999987,
+          "q3": 1.3013309999999985,
+          "iqr": 0.2871229999999998,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 28685.557,
+          "q1": 28483.4925,
+          "q3": 28701.478000000003,
+          "iqr": 217.9855000000025,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27672.364,
+          "q1": 27475.368000000002,
+          "q3": 27688.4685,
+          "iqr": 213.10049999999683,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1061.2000000000007,
+          "q1": 911.8209999999999,
+          "q3": 1229.1190000000006,
+          "iqr": 317.2980000000007,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0612000000000008,
+          "q1": 0.911821,
+          "q3": 1.2291190000000007,
+          "iqr": 0.31729800000000075,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::ConnectFour": {
+      "baseline": {
+        "session_ms": {
+          "median": 27537.217,
+          "q1": 27328.301,
+          "q3": 27589.9505,
+          "iqr": 261.64949999999953,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27534.244,
+          "q1": 27326.044,
+          "q3": 27587.664,
+          "iqr": 261.619999999999,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 28265.107,
+          "q1": 28256.421000000002,
+          "q3": 28401.023,
+          "iqr": 144.60199999999895,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27260.477,
+          "q1": 27250.985,
+          "q3": 27393.4685,
+          "iqr": 142.48349999999846,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 999.7219999999979,
+          "q1": 811.0724999999984,
+          "q3": 1064.036,
+          "iqr": 252.96350000000166,
+          "n": 3
+        },
+        "amplification": {
+          "median": 0.9997219999999979,
+          "q1": 0.8110724999999983,
+          "q3": 1.064036,
+          "iqr": 0.2529635000000017,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 28581.24,
+          "q1": 28320.5795,
+          "q3": 37615.415,
+          "iqr": 9294.835500000001,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27577.677,
+          "q1": 27316.256,
+          "q3": 36609.6275,
+          "iqr": 9293.371500000001,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1461.8550000000032,
+          "q1": 939.5450000000019,
+          "q3": 10287.114,
+          "iqr": 9347.568999999998,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.4618550000000032,
+          "q1": 0.9395450000000019,
+          "q3": 10.287113999999999,
+          "iqr": 9.347568999999996,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::ConnectionsNYT": {
+      "baseline": {
+        "session_ms": {
+          "median": 24726.505,
+          "q1": 24688.054,
+          "q3": 24835.004500000003,
+          "iqr": 146.95050000000265,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 24724.661,
+          "q1": 24686.4985,
+          "q3": 24832.9205,
+          "iqr": 146.42199999999866,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 25642.46,
+          "q1": 25630.849000000002,
+          "q3": 25825.0435,
+          "iqr": 194.1944999999978,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 24638.628999999997,
+          "q1": 24625.603,
+          "q3": 24819.4295,
+          "iqr": 193.8264999999992,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 992.857,
+          "q1": 942.7950000000001,
+          "q3": 1028.4899999999998,
+          "iqr": 85.69499999999971,
+          "n": 3
+        },
+        "amplification": {
+          "median": 0.992857,
+          "q1": 0.942795,
+          "q3": 1.0284899999999997,
+          "iqr": 0.08569499999999963,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 25824.447,
+          "q1": 25722.381999999998,
+          "q3": 25950.8685,
+          "iqr": 228.4865000000027,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 24816.686,
+          "q1": 24714.39,
+          "q3": 24942.000500000002,
+          "iqr": 227.6105000000025,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1097.941999999999,
+          "q1": 887.3774999999987,
+          "q3": 1262.8145000000004,
+          "iqr": 375.4370000000017,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.097941999999999,
+          "q1": 0.8873774999999987,
+          "q3": 1.2628145000000004,
+          "iqr": 0.3754370000000017,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::DetectPalindromes": {
+      "baseline": {
+        "session_ms": {
+          "median": 24393.877,
+          "q1": 24221.458,
+          "q3": 29820.244,
+          "iqr": 5598.786,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 24391.425000000003,
+          "q1": 24218.9265,
+          "q3": 29817.8495,
+          "iqr": 5598.922999999999,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 25312.141,
+          "q1": 25296.492,
+          "q3": 25360.970999999998,
+          "iqr": 64.47899999999936,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 24301.042999999998,
+          "q1": 24289.101499999997,
+          "q3": 24350.614999999998,
+          "iqr": 61.51350000000093,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1015.9239999999991,
+          "q1": -4474.921999999999,
+          "q3": 1139.512999999999,
+          "iqr": 5614.434999999998,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0159239999999992,
+          "q1": -4.474921999999999,
+          "q3": 1.139512999999999,
+          "iqr": 5.6144349999999985,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 25575.245,
+          "q1": 25520.243000000002,
+          "q3": 25644.6865,
+          "iqr": 124.44349999999758,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 24562.956,
+          "q1": 24510.004999999997,
+          "q3": 24634.171,
+          "iqr": 124.16600000000108,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1181.3679999999986,
+          "q1": -4175.557499999999,
+          "q3": 1298.7849999999999,
+          "iqr": 5474.342499999999,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.1813679999999986,
+          "q1": -4.175557499999999,
+          "q3": 1.2987849999999999,
+          "iqr": 5.474342499999999,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::DouDizhuPoker": {
+      "baseline": {
+        "session_ms": {
+          "median": 28994.09,
+          "q1": 28790.9515,
+          "q3": 29133.254999999997,
+          "iqr": 342.30349999999817,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 28990.588,
+          "q1": 28787.624,
+          "q3": 29130.797,
+          "iqr": 343.17299999999886,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 30002.229,
+          "q1": 29867.858500000002,
+          "q3": 30111.4155,
+          "iqr": 243.55699999999706,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 28993.011,
+          "q1": 28858.2155,
+          "q3": 29102.494,
+          "iqr": 244.27850000000035,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1008.1389999999992,
+          "q1": 978.1605,
+          "q3": 1076.907000000001,
+          "iqr": 98.7465000000011,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0081389999999992,
+          "q1": 0.9781605,
+          "q3": 1.0769070000000012,
+          "iqr": 0.09874650000000118,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 30099.703,
+          "q1": 29847.95,
+          "q3": 39489.600000000006,
+          "iqr": 9641.650000000005,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 29089.854,
+          "q1": 28840.798,
+          "q3": 38482.736000000004,
+          "iqr": 9641.938000000006,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1511.890000000003,
+          "q1": 917.8335000000025,
+          "q3": 10698.648500000003,
+          "iqr": 9780.815,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.511890000000003,
+          "q1": 0.9178335000000024,
+          "q3": 10.698648500000004,
+          "iqr": 9.780815000000002,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::EpisodeChooseYourStory": {
+      "baseline": {
+        "session_ms": {
+          "median": 26578.08,
+          "q1": 26569.769500000002,
+          "q3": 26737.3695,
+          "iqr": 167.59999999999854,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 26576.561,
+          "q1": 26568.158000000003,
+          "q3": 26734.9175,
+          "iqr": 166.75949999999648,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 27938.864,
+          "q1": 27752.885000000002,
+          "q3": 27987.0015,
+          "iqr": 234.11649999999645,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 26928.131,
+          "q1": 26745.365,
+          "q3": 26978.629500000003,
+          "iqr": 233.26450000000114,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1042.2050000000017,
+          "q1": 1015.5154999999995,
+          "q3": 1257.942500000001,
+          "iqr": 242.4270000000015,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0422050000000018,
+          "q1": 1.0155154999999996,
+          "q3": 1.257942500000001,
+          "iqr": 0.2424270000000015,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 27972.327,
+          "q1": 27759.377500000002,
+          "q3": 36783.817,
+          "iqr": 9024.4395,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 26962.059,
+          "q1": 26750.079,
+          "q3": 35774.668000000005,
+          "iqr": 9024.589000000004,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1394.2469999999994,
+          "q1": 1189.6080000000002,
+          "q3": 10046.4475,
+          "iqr": 8856.8395,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.3942469999999993,
+          "q1": 1.1896080000000002,
+          "q3": 10.046447500000001,
+          "iqr": 8.856839500000001,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::FibonacciNumbers": {
+      "baseline": {
+        "session_ms": {
+          "median": 27250.862,
+          "q1": 27221.0925,
+          "q3": 27439.608,
+          "iqr": 218.51550000000134,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27249.059999999998,
+          "q1": 27218.839,
+          "q3": 27437.741499999996,
+          "iqr": 218.9024999999965,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 28630.553,
+          "q1": 28453.778,
+          "q3": 28677.9755,
+          "iqr": 224.19750000000204,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27621.066,
+          "q1": 27444.136,
+          "q3": 27670.9555,
+          "iqr": 226.81950000000143,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1085.6800000000003,
+          "q1": 1043.9395000000004,
+          "q3": 1280.1080000000002,
+          "iqr": 236.16849999999977,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0856800000000002,
+          "q1": 1.0439395000000005,
+          "q3": 1.2801080000000002,
+          "iqr": 0.23616849999999978,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 28656.17,
+          "q1": 28639.9495,
+          "q3": 28789.1425,
+          "iqr": 149.19300000000294,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27650.907,
+          "q1": 27631.8225,
+          "q3": 27783.4555,
+          "iqr": 151.63300000000163,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1464.846999999998,
+          "q1": 1230.110999999999,
+          "q3": 1568.0499999999993,
+          "iqr": 337.9390000000003,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.464846999999998,
+          "q1": 1.230110999999999,
+          "q3": 1.5680499999999993,
+          "iqr": 0.3379390000000002,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::FlappyBird": {
+      "baseline": {
+        "session_ms": {
+          "median": 20442.818,
+          "q1": 20441.086,
+          "q3": 20593.322,
+          "iqr": 152.2360000000008,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 20441.583,
+          "q1": 20439.545,
+          "q3": 20591.697,
+          "iqr": 152.15200000000186,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 21787.862,
+          "q1": 21655.989,
+          "q3": 22513.34,
+          "iqr": 857.3509999999987,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 20780.317,
+          "q1": 20650.626,
+          "q3": 21506.3825,
+          "iqr": 855.7564999999995,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1081.2980000000025,
+          "q1": 1062.6670000000013,
+          "q3": 1940.3810000000012,
+          "iqr": 877.7139999999999,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0812980000000025,
+          "q1": 1.0626670000000011,
+          "q3": 1.9403810000000012,
+          "iqr": 0.8777140000000001,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 21828.84,
+          "q1": 21671.914,
+          "q3": 28516.271999999997,
+          "iqr": 6844.3579999999965,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 20821.917999999998,
+          "q1": 20666.182999999997,
+          "q3": 27510.07,
+          "iqr": 6843.887000000002,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1386.0220000000008,
+          "q1": 1230.8280000000013,
+          "q3": 7922.949999999999,
+          "iqr": 6692.121999999998,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.3860220000000008,
+          "q1": 1.2308280000000011,
+          "q3": 7.922949999999998,
+          "iqr": 6.692121999999998,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::GoldMiner": {
+      "baseline": {
+        "session_ms": {
+          "median": 26771.67,
+          "q1": 26751.4825,
+          "q3": 26917.105,
+          "iqr": 165.6225000000013,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 26769.809,
+          "q1": 26749.1675,
+          "q3": 26914.8065,
+          "iqr": 165.6389999999992,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 28180.525,
+          "q1": 28149.3615,
+          "q3": 28756.0275,
+          "iqr": 606.6660000000011,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27167.889,
+          "q1": 27138.555999999997,
+          "q3": 27747.023500000003,
+          "iqr": 608.4675000000061,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1386.903000000002,
+          "q1": 1252.4440000000013,
+          "q3": 1973.3815000000013,
+          "iqr": 720.9375,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.386903000000002,
+          "q1": 1.2524440000000014,
+          "q3": 1.9733815000000012,
+          "iqr": 0.7209374999999998,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 28155.539,
+          "q1": 27989.45,
+          "q3": 37155.369,
+          "iqr": 9165.918999999998,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27143.976,
+          "q1": 26979.0135,
+          "q3": 36142.3825,
+          "iqr": 9163.368999999999,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1424.2440000000024,
+          "q1": 1237.9675000000025,
+          "q3": 10258.451500000001,
+          "iqr": 9020.483999999999,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.4242440000000025,
+          "q1": 1.2379675000000026,
+          "q3": 10.258451500000001,
+          "iqr": 9.020484,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::Gomoku": {
+      "baseline": {
+        "session_ms": {
+          "median": 23762.216,
+          "q1": 23689.209000000003,
+          "q3": 23837.451,
+          "iqr": 148.24199999999837,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 23760.678,
+          "q1": 23687.16,
+          "q3": 23835.966,
+          "iqr": 148.8060000000005,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 24905.524,
+          "q1": 24748.4555,
+          "q3": 24927.2455,
+          "iqr": 178.79000000000087,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 23898.582000000002,
+          "q1": 23741.468500000003,
+          "q3": 23922.295000000002,
+          "iqr": 180.8264999999992,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1036.280999999999,
+          "q1": 1005.7329999999984,
+          "q3": 1089.7945,
+          "iqr": 84.06150000000162,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0362809999999991,
+          "q1": 1.0057329999999984,
+          "q3": 1.0897945,
+          "iqr": 0.08406150000000157,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 24976.557,
+          "q1": 24752.3525,
+          "q3": 24996.406000000003,
+          "iqr": 244.0535000000018,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 23966.877,
+          "q1": 23745.2235,
+          "q3": 23989.1095,
+          "iqr": 243.8859999999986,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1063.8709999999992,
+          "q1": 914.9014999999999,
+          "q3": 1231.9619999999995,
+          "iqr": 317.0604999999996,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0638709999999991,
+          "q1": 0.9149014999999999,
+          "q3": 1.2319619999999996,
+          "iqr": 0.31706049999999963,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::Mastermind": {
+      "baseline": {
+        "session_ms": {
+          "median": 23108.053,
+          "q1": 23004.025,
+          "q3": 23166.905,
+          "iqr": 162.87999999999738,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 23106.282,
+          "q1": 23001.3315,
+          "q3": 23164.811999999998,
+          "iqr": 163.48049999999785,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 24298.494,
+          "q1": 24283.569499999998,
+          "q3": 24303.4315,
+          "iqr": 19.86200000000099,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 23286.523999999998,
+          "q1": 23274.5075,
+          "q3": 23291.154499999997,
+          "iqr": 16.646999999997206,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1160.5920000000006,
+          "q1": 1116.664499999999,
+          "q3": 1284.482,
+          "iqr": 167.81750000000102,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.1605920000000005,
+          "q1": 1.1166644999999988,
+          "q3": 1.284482,
+          "iqr": 0.16781750000000106,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 24350.519,
+          "q1": 24154.872499999998,
+          "q3": 546290.0695000001,
+          "iqr": 522135.1970000001,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 23337.099000000002,
+          "q1": 23145.3635,
+          "q3": 545277.4495,
+          "iqr": 522132.086,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1450.5220000000008,
+          "q1": 1150.8474999999999,
+          "q3": 523227.19250000006,
+          "iqr": 522076.3450000001,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.4505220000000008,
+          "q1": 1.1508474999999998,
+          "q3": 523.2271925000001,
+          "iqr": 522.0763450000001,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::Minesweeper": {
+      "baseline": {
+        "session_ms": {
+          "median": 23110.687,
+          "q1": 23069.858500000002,
+          "q3": 23242.6165,
+          "iqr": 172.757999999998,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 23108.21,
+          "q1": 23067.347999999998,
+          "q3": 23240.2415,
+          "iqr": 172.89350000000195,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 24437.736,
+          "q1": 24281.1045,
+          "q3": 24559.584000000003,
+          "iqr": 278.4795000000013,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 23426.449999999997,
+          "q1": 23271.938,
+          "q3": 23550.481999999996,
+          "iqr": 278.54399999999805,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1063.1900000000023,
+          "q1": 1038.4880000000012,
+          "q3": 1357.796000000002,
+          "iqr": 319.3080000000009,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0631900000000023,
+          "q1": 1.0384880000000012,
+          "q3": 1.3577960000000022,
+          "iqr": 0.31930800000000104,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 24388.704,
+          "q1": 24246.6885,
+          "q3": 24416.551,
+          "iqr": 169.86249999999927,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 23382.623,
+          "q1": 23240.261,
+          "q3": 23407.207000000002,
+          "iqr": 166.94600000000355,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1333.7109999999993,
+          "q1": 1031.9189999999999,
+          "q3": 1346.692500000001,
+          "iqr": 314.77350000000115,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.3337109999999994,
+          "q1": 1.0319189999999998,
+          "q3": 1.346692500000001,
+          "iqr": 0.31477350000000115,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::MonopolyGo": {
+      "baseline": {
+        "session_ms": {
+          "median": 26939.447,
+          "q1": 26871.8305,
+          "q3": 27133.112,
+          "iqr": 261.28150000000096,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 26937.542999999998,
+          "q1": 26869.6165,
+          "q3": 27130.943,
+          "iqr": 261.3264999999992,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 28357.729,
+          "q1": 28218.617,
+          "q3": 28406.932,
+          "iqr": 188.31500000000233,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27355.879999999997,
+          "q1": 27214.618,
+          "q3": 27400.961,
+          "iqr": 186.34300000000076,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1140.058000000001,
+          "q1": 1134.7080000000005,
+          "q3": 1346.7865000000002,
+          "iqr": 212.07849999999962,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.140058000000001,
+          "q1": 1.1347080000000005,
+          "q3": 1.3467865,
+          "iqr": 0.21207849999999961,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 28444.797,
+          "q1": 28358.836,
+          "q3": 37234.14,
+          "iqr": 8875.304,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27432.492,
+          "q1": 27349.8885,
+          "q3": 36222.061499999996,
+          "iqr": 8872.172999999995,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1505.3499999999985,
+          "q1": 1487.0054999999993,
+          "q3": 10101.028,
+          "iqr": 8614.022500000001,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.5053499999999986,
+          "q1": 1.4870054999999993,
+          "q3": 10.101028000000001,
+          "iqr": 8.614022500000003,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::Pong": {
+      "baseline": {
+        "session_ms": {
+          "median": 17527.283,
+          "q1": 17418.0205,
+          "q3": 17558.0155,
+          "iqr": 139.99500000000262,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 17524.801,
+          "q1": 17415.5,
+          "q3": 17556.036500000002,
+          "iqr": 140.53650000000198,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 18719.433,
+          "q1": 18657.265,
+          "q3": 19060.2115,
+          "iqr": 402.94650000000183,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 17709.386000000002,
+          "q1": 17650.4955,
+          "q3": 18051.7255,
+          "iqr": 401.22999999999956,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1286.339,
+          "q1": 1239.2445000000007,
+          "q3": 1549.290500000001,
+          "iqr": 310.0460000000003,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.286339,
+          "q1": 1.2392445000000007,
+          "q3": 1.549290500000001,
+          "iqr": 0.31004600000000027,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 18633.965,
+          "q1": 18513.311,
+          "q3": 24321.811,
+          "iqr": 5808.5,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 17621.997,
+          "q1": 17504.016,
+          "q3": 23313.7745,
+          "iqr": 5809.7585,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1325.2069999999985,
+          "q1": 1064.557999999999,
+          "q3": 6903.790499999999,
+          "iqr": 5839.2325,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.3252069999999985,
+          "q1": 1.064557999999999,
+          "q3": 6.9037904999999995,
+          "iqr": 5.8392325000000005,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::ReversiOthello": {
+      "baseline": {
+        "session_ms": {
+          "median": 24681.838,
+          "q1": 24569.406,
+          "q3": 24750.5935,
+          "iqr": 181.1875,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 24680.470999999998,
+          "q1": 24567.564,
+          "q3": 24748.6625,
+          "iqr": 181.09850000000006,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 25905.768,
+          "q1": 25734.8305,
+          "q3": 25973.79,
+          "iqr": 238.95950000000084,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 24893.443,
+          "q1": 24725.1625,
+          "q3": 24966.3125,
+          "iqr": 241.15000000000146,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1106.9190000000017,
+          "q1": 1096.6690000000017,
+          "q3": 1233.4465000000018,
+          "iqr": 136.77750000000015,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.1069190000000018,
+          "q1": 1.0966690000000017,
+          "q3": 1.2334465000000019,
+          "iqr": 0.13677750000000022,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 25882.702,
+          "q1": 25772.831,
+          "q3": 33846.8925,
+          "iqr": 8074.061500000003,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 24875.975,
+          "q1": 24763.7035,
+          "q3": 32840.4865,
+          "iqr": 8076.782999999999,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1425.7280000000028,
+          "q1": 1203.425000000001,
+          "q3": 9208.731000000002,
+          "iqr": 8005.3060000000005,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.4257280000000028,
+          "q1": 1.203425000000001,
+          "q3": 9.208731000000002,
+          "iqr": 8.005306000000001,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::SnakeGame": {
+      "baseline": {
+        "session_ms": {
+          "median": 28670.051,
+          "q1": 28575.067,
+          "q3": 28814.3035,
+          "iqr": 239.2365000000027,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 28668.502999999997,
+          "q1": 28573.207499999997,
+          "q3": 28812.9185,
+          "iqr": 239.71100000000297,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 29846.248,
+          "q1": 29753.5945,
+          "q3": 29893.339500000002,
+          "iqr": 139.74500000000262,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 28840.159,
+          "q1": 28748.957,
+          "q3": 28886.281000000003,
+          "iqr": 137.32400000000416,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1176.1970000000001,
+          "q1": 1079.036,
+          "q3": 1178.5275000000001,
+          "iqr": 99.49150000000009,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.1761970000000002,
+          "q1": 1.079036,
+          "q3": 1.1785275000000002,
+          "iqr": 0.09949150000000007,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 29967.456,
+          "q1": 29707.792999999998,
+          "q3": 34197.1605,
+          "iqr": 4489.3675,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 28953.29,
+          "q1": 28697.093,
+          "q3": 33186.825,
+          "iqr": 4489.731999999996,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1487.3729999999996,
+          "q1": 1132.7260000000006,
+          "q3": 5477.8409999999985,
+          "iqr": 4345.114999999998,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.4873729999999996,
+          "q1": 1.1327260000000006,
+          "q3": 5.477840999999999,
+          "iqr": 4.345114999999998,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::StrandsGame": {
+      "baseline": {
+        "session_ms": {
+          "median": 25310.599,
+          "q1": 25296.781499999997,
+          "q3": 25507.3765,
+          "iqr": 210.59500000000116,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 25308.787,
+          "q1": 25295.091500000002,
+          "q3": 25505.297,
+          "iqr": 210.2054999999964,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 26741.682,
+          "q1": 26585.225,
+          "q3": 26775.2785,
+          "iqr": 190.0535000000018,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 25732.894,
+          "q1": 25577.3625,
+          "q3": 25769.7885,
+          "iqr": 192.42599999999948,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1118.1690000000017,
+          "q1": 1077.8485000000019,
+          "q3": 1322.0400000000009,
+          "iqr": 244.191499999999,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.1181690000000017,
+          "q1": 1.0778485000000018,
+          "q3": 1.3220400000000008,
+          "iqr": 0.244191499999999,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 26801.49,
+          "q1": 26767.389000000003,
+          "q3": 35321.770000000004,
+          "iqr": 8554.381000000001,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 25789.048000000003,
+          "q1": 25759.765,
+          "q3": 34312.9585,
+          "iqr": 8553.193500000001,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1490.8910000000033,
+          "q1": 1470.607500000002,
+          "q3": 9814.393500000004,
+          "iqr": 8343.786000000002,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.4908910000000033,
+          "q1": 1.470607500000002,
+          "q3": 9.814393500000005,
+          "iqr": 8.343786000000003,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::StrandsNYT": {
+      "baseline": {
+        "session_ms": {
+          "median": 25553.202,
+          "q1": 25517.097,
+          "q3": 25704.322,
+          "iqr": 187.22499999999854,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 25550.046000000002,
+          "q1": 25514.85,
+          "q3": 25701.265,
+          "iqr": 186.41500000000087,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 26589.264,
+          "q1": 26555.7105,
+          "q3": 26726.7255,
+          "iqr": 171.01499999999942,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 25583.16,
+          "q1": 25547.529000000002,
+          "q3": 25717.7685,
+          "iqr": 170.23949999999604,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1036.061999999998,
+          "q1": 1022.4035000000003,
+          "q3": 1038.6134999999995,
+          "iqr": 16.209999999999127,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.036061999999998,
+          "q1": 1.0224035000000002,
+          "q3": 1.0386134999999994,
+          "iqr": 0.01620999999999917,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 26951.145,
+          "q1": 26706.4465,
+          "q3": 26953.305500000002,
+          "iqr": 246.85900000000402,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 25939.838,
+          "q1": 25698.087,
+          "q3": 25946.142,
+          "iqr": 248.0550000000003,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1402.2639999999992,
+          "q1": 1004.2849999999999,
+          "q3": 1436.2085000000006,
+          "iqr": 431.9235000000008,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.4022639999999993,
+          "q1": 1.0042849999999999,
+          "q3": 1.4362085000000007,
+          "iqr": 0.4319235000000008,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::Sudoku": {
+      "baseline": {
+        "session_ms": {
+          "median": 43155.902,
+          "q1": 43029.423500000004,
+          "q3": 58036.195,
+          "iqr": 15006.771499999995,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 43152.727,
+          "q1": 43026.898,
+          "q3": 58033.0265,
+          "iqr": 15006.128499999999,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 44127.358,
+          "q1": 43803.091,
+          "q3": 44395.0875,
+          "iqr": 591.9965000000011,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 43114.839,
+          "q1": 42792.2595,
+          "q3": 43385.283500000005,
+          "iqr": 593.0240000000049,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 575.8790000000008,
+          "q1": -13838.895999999997,
+          "q3": 773.6674999999996,
+          "iqr": 14612.563499999997,
+          "n": 3
+        },
+        "amplification": {
+          "median": 0.5758790000000008,
+          "q1": -13.838895999999997,
+          "q3": 0.7736674999999995,
+          "iqr": 14.612563499999997,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 44127.845,
+          "q1": 44107.1805,
+          "q3": 44255.758499999996,
+          "iqr": 148.57799999999406,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 43114.39,
+          "q1": 43093.471,
+          "q3": 43247.6315,
+          "iqr": 154.1605000000054,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 930.6140000000014,
+          "q1": -13801.100999999999,
+          "q3": 1077.7570000000014,
+          "iqr": 14878.858,
+          "n": 3
+        },
+        "amplification": {
+          "median": 0.9306140000000014,
+          "q1": -13.801101,
+          "q3": 1.0777570000000014,
+          "iqr": 14.878858000000001,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::Tetris": {
+      "baseline": {
+        "session_ms": {
+          "median": 30298.395,
+          "q1": 30082.8475,
+          "q3": 30447.4725,
+          "iqr": 364.625,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 30296.417,
+          "q1": 30080.377,
+          "q3": 30445.719,
+          "iqr": 365.34200000000055,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 31291.631,
+          "q1": 31150.88,
+          "q3": 31310.7645,
+          "iqr": 159.88450000000012,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 30287.329,
+          "q1": 30145.2535,
+          "q3": 30304.2795,
+          "iqr": 159.02600000000166,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1031.5030000000006,
+          "q1": 863.2920000000013,
+          "q3": 1087.166000000001,
+          "iqr": 223.8739999999998,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0315030000000005,
+          "q1": 0.8632920000000013,
+          "q3": 1.0871660000000012,
+          "iqr": 0.2238739999999999,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 31462.504,
+          "q1": 31133.911500000002,
+          "q3": 41389.3425,
+          "iqr": 10255.430999999997,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 30452.127,
+          "q1": 30126.610500000003,
+          "q3": 40379.4255,
+          "iqr": 10252.814999999995,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1595.2040000000015,
+          "q1": 901.9865000000009,
+          "q3": 11306.494999999999,
+          "iqr": 10404.508499999998,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.5952040000000016,
+          "q1": 0.9019865000000009,
+          "q3": 11.306495,
+          "iqr": 10.404508499999999,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::TextBasedSpaceInvaders": {
+      "baseline": {
+        "session_ms": {
+          "median": 28304.968,
+          "q1": 28218.6365,
+          "q3": 28393.4845,
+          "iqr": 174.84799999999814,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 28302.792,
+          "q1": 28216.59,
+          "q3": 28391.2625,
+          "iqr": 174.67250000000058,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 29589.944,
+          "q1": 29567.739,
+          "q3": 30276.33,
+          "iqr": 708.5910000000003,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 28585.106,
+          "q1": 28559.3,
+          "q3": 29270.1345,
+          "iqr": 710.8345000000008,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1457.6389999999992,
+          "q1": 1260.5859999999993,
+          "q3": 2057.6934999999994,
+          "iqr": 797.1075000000001,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.4576389999999992,
+          "q1": 1.2605859999999993,
+          "q3": 2.0576934999999996,
+          "iqr": 0.7971075000000003,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 29588.806,
+          "q1": 29452.966,
+          "q3": 38877.552,
+          "iqr": 9424.586000000003,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 28576.504999999997,
+          "q1": 28443.3445,
+          "q3": 37865.1725,
+          "iqr": 9421.828000000001,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1456.5010000000002,
+          "q1": 1234.3294999999998,
+          "q3": 10570.399000000001,
+          "iqr": 9336.069500000001,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.4565010000000003,
+          "q1": 1.2343294999999999,
+          "q3": 10.570399,
+          "iqr": 9.3360695,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::TheCrossword": {
+      "baseline": {
+        "session_ms": {
+          "median": 28291.348,
+          "q1": 28158.6685,
+          "q3": 39504.6415,
+          "iqr": 11345.972999999998,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 28288.796000000002,
+          "q1": 28156.269500000002,
+          "q3": 39502.4705,
+          "iqr": 11346.201000000001,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 29238.477,
+          "q1": 29078.697,
+          "q3": 29257.41,
+          "iqr": 178.71299999999974,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 28231.712,
+          "q1": 28070.2905,
+          "q3": 28250.7775,
+          "iqr": 180.487000000001,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 892.9279999999999,
+          "q1": -10293.265,
+          "q3": 938.9614999999994,
+          "iqr": 11232.226499999999,
+          "n": 3
+        },
+        "amplification": {
+          "median": 0.8929279999999998,
+          "q1": -10.293264999999998,
+          "q3": 0.9389614999999993,
+          "iqr": 11.232226499999998,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 29320.278,
+          "q1": 29308.7345,
+          "q3": 29383.680999999997,
+          "iqr": 74.9464999999982,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 28305.659999999996,
+          "q1": 28294.076999999997,
+          "q3": 28375.297,
+          "iqr": 81.22000000000116,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1005.8429999999971,
+          "q1": -10132.504,
+          "q3": 1150.065999999997,
+          "iqr": 11282.569999999998,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0058429999999972,
+          "q1": -10.132504,
+          "q3": 1.1500659999999971,
+          "iqr": 11.282569999999998,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::TicTacToe": {
+      "baseline": {
+        "session_ms": {
+          "median": 22890.103,
+          "q1": 22765.114,
+          "q3": 22926.173499999997,
+          "iqr": 161.05949999999575,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 22888.182,
+          "q1": 22762.822,
+          "q3": 22924.0285,
+          "iqr": 161.20650000000023,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 23726.065,
+          "q1": 23700.1115,
+          "q3": 23845.3565,
+          "iqr": 145.24500000000262,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 22723.841,
+          "q1": 22695.59,
+          "q3": 22837.6715,
+          "iqr": 142.08150000000023,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1002.4040000000023,
+          "q1": 919.1830000000009,
+          "q3": 1018.2185000000009,
+          "iqr": 99.03549999999996,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0024040000000023,
+          "q1": 0.919183000000001,
+          "q3": 1.018218500000001,
+          "iqr": 0.09903550000000005,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 23946.068,
+          "q1": 23879.0035,
+          "q3": 24003.7585,
+          "iqr": 124.75500000000102,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 22939.614999999998,
+          "q1": 22871.4845,
+          "q3": 22995.6485,
+          "iqr": 124.16400000000067,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1099.2050000000017,
+          "q1": 1010.5205000000005,
+          "q3": 1202.5740000000005,
+          "iqr": 192.05349999999999,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0992050000000018,
+          "q1": 1.0105205000000006,
+          "q3": 1.2025740000000007,
+          "iqr": 0.1920535000000001,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::Tiny Rouge": {
+      "baseline": {
+        "session_ms": {
+          "median": 27718.331,
+          "q1": 27613.489999999998,
+          "q3": 27729.665,
+          "iqr": 116.17500000000291,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27715.911999999997,
+          "q1": 27611.259,
+          "q3": 27727.772999999997,
+          "iqr": 116.51399999999921,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 28739.795,
+          "q1": 28573.002,
+          "q3": 29291.968,
+          "iqr": 718.9660000000003,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27735.137,
+          "q1": 27566.0515,
+          "q3": 28288.156499999997,
+          "iqr": 722.1049999999959,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1021.4639999999999,
+          "q1": 843.3369999999995,
+          "q3": 1678.4779999999992,
+          "iqr": 835.1409999999996,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.021464,
+          "q1": 0.8433369999999996,
+          "q3": 1.6784779999999992,
+          "iqr": 0.8351409999999997,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 28569.591,
+          "q1": 28514.019500000002,
+          "q3": 28692.006999999998,
+          "iqr": 177.98749999999563,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 27561.378,
+          "q1": 27505.708,
+          "q3": 27681.5945,
+          "iqr": 175.88650000000052,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 949.7989999999991,
+          "q1": 900.5295000000006,
+          "q3": 1011.6114999999991,
+          "iqr": 111.08199999999852,
+          "n": 3
+        },
+        "amplification": {
+          "median": 0.9497989999999991,
+          "q1": 0.9005295000000005,
+          "q3": 1.011611499999999,
+          "iqr": 0.11108199999999846,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::TriviaQuiz": {
+      "baseline": {
+        "session_ms": {
+          "median": 26608.859,
+          "q1": 26419.1535,
+          "q3": 26657.716,
+          "iqr": 238.5625,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 26606.843999999997,
+          "q1": 26417.367,
+          "q3": 26655.8285,
+          "iqr": 238.46150000000125,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 27481.562,
+          "q1": 27382.342,
+          "q3": 27564.0815,
+          "iqr": 181.73949999999968,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 26476.156000000003,
+          "q1": 26373.394500000002,
+          "q3": 26555.090500000002,
+          "iqr": 181.6959999999999,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1037.7419999999984,
+          "q1": 906.3654999999999,
+          "q3": 1045.7079999999987,
+          "iqr": 139.34249999999884,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0377419999999984,
+          "q1": 0.9063654999999999,
+          "q3": 1.0457079999999987,
+          "iqr": 0.13934249999999881,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 27721.737,
+          "q1": 27458.892,
+          "q3": 36243.6815,
+          "iqr": 8784.789499999999,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 26710.85,
+          "q1": 26450.817,
+          "q3": 35235.405,
+          "iqr": 8784.588,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1492.2890000000007,
+          "q1": 990.8814999999995,
+          "q3": 9824.527999999998,
+          "iqr": 8833.646499999999,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.4922890000000006,
+          "q1": 0.9908814999999995,
+          "q3": 9.824527999999997,
+          "iqr": 8.833646499999997,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    },
+    "programdev-demo::Wordle": {
+      "baseline": {
+        "session_ms": {
+          "median": 21516.197,
+          "q1": 21432.938000000002,
+          "q3": 21553.150999999998,
+          "iqr": 120.2129999999961,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 21514.371,
+          "q1": 21431.2645,
+          "q3": 21550.7535,
+          "iqr": 119.48899999999776,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        }
+      },
+      "a1_llm_delay": {
+        "session_ms": {
+          "median": 22616.061,
+          "q1": 22485.4055,
+          "q3": 23179.4145,
+          "iqr": 694.0089999999982,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 21607.254999999997,
+          "q1": 21474.963,
+          "q3": 22172.9225,
+          "iqr": 697.9595000000008,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1025.956000000002,
+          "q1": 932.2545000000009,
+          "q3": 1709.522500000001,
+          "iqr": 777.268,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0259560000000019,
+          "q1": 0.9322545000000009,
+          "q3": 1.7095225000000007,
+          "iqr": 0.7772679999999998,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "inference llama2",
+          "span_kind": "CLIENT",
+          "fault_type": "llm.delay",
+          "fault_spec_id": "A1_LLM_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      },
+      "a2_a2a_delay": {
+        "session_ms": {
+          "median": 22418.503,
+          "q1": 22369.6095,
+          "q3": 22541.9525,
+          "iqr": 172.34300000000076,
+          "n": 3
+        },
+        "injected_delay_ms": {
+          "median": 1000.0,
+          "q1": 1000.0,
+          "q3": 1000.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "llm_total_ms": {
+          "median": 21412.98,
+          "q1": 21364.485,
+          "q3": 21533.358999999997,
+          "iqr": 168.87399999999616,
+          "n": 3
+        },
+        "llm_call_count": {
+          "median": 2.0,
+          "q1": 2.0,
+          "q3": 2.0,
+          "iqr": 0.0,
+          "n": 3
+        },
+        "overhead_ms": {
+          "median": 1068.8240000000005,
+          "q1": 899.7175000000007,
+          "q3": 1109.0144999999993,
+          "iqr": 209.29699999999866,
+          "n": 3
+        },
+        "amplification": {
+          "median": 1.0688240000000004,
+          "q1": 0.8997175000000006,
+          "q3": 1.1090144999999993,
+          "iqr": 0.20929699999999873,
+          "n": 3
+        },
+        "content_change_rate": 0.0,
+        "injection_point_example": {
+          "span_name": "send Planner->Coder",
+          "span_kind": "PRODUCER",
+          "fault_type": "a2a.delay",
+          "fault_spec_id": "A2_A2A_DELAY",
+          "fault_decision": "delay",
+          "delay_ms": 1000.0,
+          "phase_name": "planning",
+          "agent_id": "Planner"
+        }
+      }
+    }
+  },
+  "notes": {
+    "matching_rule": "Runs are matched by llmmas.session.id (stable). trace_id differs per run.",
+    "goal_a_expectation": "Delay faults should increase session_ms without changing content hashes (temp=0)."
+  }
+}

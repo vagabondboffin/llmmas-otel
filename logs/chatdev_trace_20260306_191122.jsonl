@@ -1,0 +1,2 @@
+{"timestamp": 1772820682.204771, "iso_timestamp": "2026-03-06T19:11:22.204771", "agent": "System", "model": "llama2:latest", "request_messages": [{"role": "user", "content": "hi"}], "response": "", "metadata": {"log_type": "llm_call"}}
+{"timestamp": 1772820682.204771, "iso_timestamp": "2026-03-06T19:11:22.204771", "agent": "System", "model": "llama2:latest", "request_messages": [{"role": "user", "content": "hi"}], "response": "Hi there! How are you?", "metadata": {"log_type": "llm_call"}}

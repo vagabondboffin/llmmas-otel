@@ -1,0 +1,444 @@
+{
+  "spans": [
+    {
+      "name": "inference llama2",
+      "trace_id": "ac485dba4faf77ff4b23700b5ff5672c",
+      "span_id": "d897fc8080e3f9f3",
+      "parent_span_id": "8d53356eb7483e3b",
+      "kind": "CLIENT",
+      "start_time_unix_nano": 1773161128224612000,
+      "end_time_unix_nano": 1773161141610521000,
+      "attributes": {
+        "gen_ai.operation.name": "inference",
+        "gen_ai.provider.name": "ollama",
+        "gen_ai.request.model": "llama2",
+        "gen_ai.request.id": "llmreq-4a6932b623b1",
+        "llmmas.fault.injected": true,
+        "llmmas.fault.type": "llm.delay",
+        "llmmas.fault.spec_id": "A1_LLM_DELAY",
+        "llmmas.fault.decision": "delay",
+        "llmmas.llm.input.preview": "system: You are a software planner. Produce a short implementation plan and test plan.\nuser: Develop a Checkers (Draughts) game. Use an 8x8 board, alternate turns between two players, and apply standa",
+        "llmmas.llm.input.sha256": "bfa42cf7dfc33531bd6786789c5f43df5414f625cc49dfbd7becfcde97f761f4",
+        "llmmas.llm.output.preview": "\nImplementation Plan:\n\n1. Define the game logic:\n\t* Determine the rules of the game, including the objective, gameplay mechanics, and any constraints.\n\t* Define the game state and how it will be updat",
+        "llmmas.llm.output.sha256": "29b1d7ecdc0d60b0ea0f3a4d97f7c5f0fd8f9454ff119ff4b46d19444a4d0789"
+      },
+      "events": [
+        {
+          "name": "fault.applied",
+          "timestamp_unix_nano": 1773161128224654000,
+          "attributes": {
+            "llmmas.fault.spec_id": "A1_LLM_DELAY",
+            "llmmas.fault.type": "llm.delay",
+            "llmmas.fault.decision": "delay",
+            "delay_ms": 1000
+          }
+        }
+      ],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "send Planner->Coder",
+      "trace_id": "ac485dba4faf77ff4b23700b5ff5672c",
+      "span_id": "6a2aa590a4d12480",
+      "parent_span_id": "8d53356eb7483e3b",
+      "kind": "PRODUCER",
+      "start_time_unix_nano": 1773161141610858000,
+      "end_time_unix_nano": 1773161141612385000,
+      "attributes": {
+        "llmmas.source_agent.id": "Planner",
+        "llmmas.target_agent.id": "Coder",
+        "llmmas.edge.id": "Planner->Coder",
+        "llmmas.message.id": "msg-0001",
+        "llmmas.channel": "requirements",
+        "llmmas.message.preview": "\nImplementation Plan:\n\n1. Define the game logic:\n\t* Determine the rules of the game, including the objective, gameplay mechanics, and any constraints.\n\t* Define the game state and how it will be updat",
+        "llmmas.message.sha256": "29b1d7ecdc0d60b0ea0f3a4d97f7c5f0fd8f9454ff119ff4b46d19444a4d0789"
+      },
+      "events": [
+        {
+          "name": "a2a.message",
+          "timestamp_unix_nano": 1773161141612357000,
+          "attributes": {
+            "llmmas.message.id": "msg-0001",
+            "llmmas.message.preview": "\nImplementation Plan:\n\n1. Define the game logic:\n\t* Determine the rules of the game, including the objective, gameplay mechanics, and any constraints.\n\t* Define the game state and how it will be updat",
+            "llmmas.message.sha256": "29b1d7ecdc0d60b0ea0f3a4d97f7c5f0fd8f9454ff119ff4b46d19444a4d0789",
+            "llmmas.message.direction": "send"
+          }
+        }
+      ],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "agent_step",
+      "trace_id": "ac485dba4faf77ff4b23700b5ff5672c",
+      "span_id": "8d53356eb7483e3b",
+      "parent_span_id": "9197ec4588461a7d",
+      "kind": "INTERNAL",
+      "start_time_unix_nano": 1773161127219344000,
+      "end_time_unix_nano": 1773161141612418000,
+      "attributes": {
+        "llmmas.agent.id": "Planner",
+        "llmmas.step.index": 0
+      },
+      "events": [],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "llmmas.workflow.segment",
+      "trace_id": "ac485dba4faf77ff4b23700b5ff5672c",
+      "span_id": "9197ec4588461a7d",
+      "parent_span_id": "aff96a109af39d72",
+      "kind": "INTERNAL",
+      "start_time_unix_nano": 1773161127219311000,
+      "end_time_unix_nano": 1773161141612436000,
+      "attributes": {
+        "llmmas.segment.name": "planning",
+        "llmmas.segment.order": 0
+      },
+      "events": [],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "process Planner->Coder",
+      "trace_id": "ac485dba4faf77ff4b23700b5ff5672c",
+      "span_id": "b1aad62346dc9852",
+      "parent_span_id": "82bc03ac38b50034",
+      "kind": "CONSUMER",
+      "start_time_unix_nano": 1773161141612706000,
+      "end_time_unix_nano": 1773161141613312000,
+      "attributes": {
+        "llmmas.source_agent.id": "Planner",
+        "llmmas.target_agent.id": "Coder",
+        "llmmas.edge.id": "Planner->Coder",
+        "llmmas.message.id": "msg-0001",
+        "llmmas.channel": "requirements",
+        "llmmas.message.preview": "\nImplementation Plan:\n\n1. Define the game logic:\n\t* Determine the rules of the game, including the objective, gameplay mechanics, and any constraints.\n\t* Define the game state and how it will be updat",
+        "llmmas.message.sha256": "29b1d7ecdc0d60b0ea0f3a4d97f7c5f0fd8f9454ff119ff4b46d19444a4d0789"
+      },
+      "events": [
+        {
+          "name": "a2a.message",
+          "timestamp_unix_nano": 1773161141613301000,
+          "attributes": {
+            "llmmas.message.id": "msg-0001",
+            "llmmas.message.preview": "\nImplementation Plan:\n\n1. Define the game logic:\n\t* Determine the rules of the game, including the objective, gameplay mechanics, and any constraints.\n\t* Define the game state and how it will be updat",
+            "llmmas.message.sha256": "29b1d7ecdc0d60b0ea0f3a4d97f7c5f0fd8f9454ff119ff4b46d19444a4d0789",
+            "llmmas.message.direction": "receive"
+          }
+        }
+      ],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "inference llama2",
+      "trace_id": "ac485dba4faf77ff4b23700b5ff5672c",
+      "span_id": "13a1680658337249",
+      "parent_span_id": "82bc03ac38b50034",
+      "kind": "CLIENT",
+      "start_time_unix_nano": 1773161141613459000,
+      "end_time_unix_nano": 1773161150668220000,
+      "attributes": {
+        "gen_ai.operation.name": "inference",
+        "gen_ai.provider.name": "ollama",
+        "gen_ai.request.model": "llama2",
+        "gen_ai.request.id": "llmreq-f71e5ebcaabf",
+        "llmmas.llm.input.preview": "system: You are a software engineer. Produce: key files + functions + tests. Be concise.\nuser: Task:\nDevelop a Checkers (Draughts) game. Use an 8x8 board, alternate turns between two players, and appl",
+        "llmmas.llm.input.sha256": "1d49896b3439f3b76abcc57d0a0abdaf9eef1d6fe77f4ba9604594219f162171",
+        "llmmas.llm.output.preview": "\nHere are the key files, functions, and tests for the Checkers game development project:\n\nKey Files:\n\n1. Game.js (game logic and user interface implementation)\n2. Game.css (game interface design)\n3. G",
+        "llmmas.llm.output.sha256": "585705dad32345eee7f1b912eb57d057931e8d06026f626801d0d64dc102a6ff"
+      },
+      "events": [],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "agent_step",
+      "trace_id": "ac485dba4faf77ff4b23700b5ff5672c",
+      "span_id": "82bc03ac38b50034",
+      "parent_span_id": "e7b2230a481bdded",
+      "kind": "INTERNAL",
+      "start_time_unix_nano": 1773161141612550000,
+      "end_time_unix_nano": 1773161150668253000,
+      "attributes": {
+        "llmmas.agent.id": "Coder",
+        "llmmas.step.index": 0
+      },
+      "events": [],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "llmmas.workflow.segment",
+      "trace_id": "ac485dba4faf77ff4b23700b5ff5672c",
+      "span_id": "e7b2230a481bdded",
+      "parent_span_id": "aff96a109af39d72",
+      "kind": "INTERNAL",
+      "start_time_unix_nano": 1773161141612504000,
+      "end_time_unix_nano": 1773161150668266000,
+      "attributes": {
+        "llmmas.segment.name": "coding",
+        "llmmas.segment.order": 1
+      },
+      "events": [],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "llmmas.session",
+      "trace_id": "ac485dba4faf77ff4b23700b5ff5672c",
+      "span_id": "aff96a109af39d72",
+      "parent_span_id": null,
+      "kind": "INTERNAL",
+      "start_time_unix_nano": 1773161127219253000,
+      "end_time_unix_nano": 1773161150668276000,
+      "attributes": {
+        "llmmas.session.id": "programdev-demo::Checkers"
+      },
+      "events": [],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "inference llama2",
+      "trace_id": "bee61eb7a17e5ae29f40a071c20a264b",
+      "span_id": "dc4f9df5d378d46a",
+      "parent_span_id": "e8c4609a87d321e3",
+      "kind": "CLIENT",
+      "start_time_unix_nano": 1773161151673805000,
+      "end_time_unix_nano": 1773161170834135000,
+      "attributes": {
+        "gen_ai.operation.name": "inference",
+        "gen_ai.provider.name": "ollama",
+        "gen_ai.request.model": "llama2",
+        "gen_ai.request.id": "llmreq-be1c3fe3a782",
+        "llmmas.fault.injected": true,
+        "llmmas.fault.type": "llm.delay",
+        "llmmas.fault.spec_id": "A1_LLM_DELAY",
+        "llmmas.fault.decision": "delay",
+        "llmmas.llm.input.preview": "system: You are a software planner. Produce a short implementation plan and test plan.\nuser: Develop a classic Sudoku puzzle game that uses a 9x9 grid. Each row, column, and 3x3 subgrid must contain t",
+        "llmmas.llm.input.sha256": "b05543a2cd45d4ab3bb0bfdc918bb2591f3d5ca1bdd21df8aa1916fb152f853b",
+        "llmmas.llm.output.preview": "\nImplementation Plan:\n\n1. Define the requirements and constraints of the Sudoku puzzle game, including the 9x9 grid, the use of each digit once in each row, column, and 3x3 subgrid, and the ability fo",
+        "llmmas.llm.output.sha256": "d45f97bf17abe1a1137f82cd51cd966f0602050c58c6db13e19aad03eab3fb8d"
+      },
+      "events": [
+        {
+          "name": "fault.applied",
+          "timestamp_unix_nano": 1773161151673953000,
+          "attributes": {
+            "llmmas.fault.spec_id": "A1_LLM_DELAY",
+            "llmmas.fault.type": "llm.delay",
+            "llmmas.fault.decision": "delay",
+            "delay_ms": 1000
+          }
+        }
+      ],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "send Planner->Coder",
+      "trace_id": "bee61eb7a17e5ae29f40a071c20a264b",
+      "span_id": "ffb5f4dca1f38d52",
+      "parent_span_id": "e8c4609a87d321e3",
+      "kind": "PRODUCER",
+      "start_time_unix_nano": 1773161170834282000,
+      "end_time_unix_nano": 1773161170834973000,
+      "attributes": {
+        "llmmas.source_agent.id": "Planner",
+        "llmmas.target_agent.id": "Coder",
+        "llmmas.edge.id": "Planner->Coder",
+        "llmmas.message.id": "msg-0001",
+        "llmmas.channel": "requirements",
+        "llmmas.message.preview": "\nImplementation Plan:\n\n1. Define the requirements and constraints of the Sudoku puzzle game, including the 9x9 grid, the use of each digit once in each row, column, and 3x3 subgrid, and the ability fo",
+        "llmmas.message.sha256": "d45f97bf17abe1a1137f82cd51cd966f0602050c58c6db13e19aad03eab3fb8d"
+      },
+      "events": [
+        {
+          "name": "a2a.message",
+          "timestamp_unix_nano": 1773161170834951000,
+          "attributes": {
+            "llmmas.message.id": "msg-0001",
+            "llmmas.message.preview": "\nImplementation Plan:\n\n1. Define the requirements and constraints of the Sudoku puzzle game, including the 9x9 grid, the use of each digit once in each row, column, and 3x3 subgrid, and the ability fo",
+            "llmmas.message.sha256": "d45f97bf17abe1a1137f82cd51cd966f0602050c58c6db13e19aad03eab3fb8d",
+            "llmmas.message.direction": "send"
+          }
+        }
+      ],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "agent_step",
+      "trace_id": "bee61eb7a17e5ae29f40a071c20a264b",
+      "span_id": "e8c4609a87d321e3",
+      "parent_span_id": "7561e7f44650b25b",
+      "kind": "INTERNAL",
+      "start_time_unix_nano": 1773161150668411000,
+      "end_time_unix_nano": 1773161170835003000,
+      "attributes": {
+        "llmmas.agent.id": "Planner",
+        "llmmas.step.index": 0
+      },
+      "events": [],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "llmmas.workflow.segment",
+      "trace_id": "bee61eb7a17e5ae29f40a071c20a264b",
+      "span_id": "7561e7f44650b25b",
+      "parent_span_id": "6b001f3b8bad8ff2",
+      "kind": "INTERNAL",
+      "start_time_unix_nano": 1773161150668385000,
+      "end_time_unix_nano": 1773161170835024000,
+      "attributes": {
+        "llmmas.segment.name": "planning",
+        "llmmas.segment.order": 0
+      },
+      "events": [],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "process Planner->Coder",
+      "trace_id": "bee61eb7a17e5ae29f40a071c20a264b",
+      "span_id": "06b79e53be9dc8c9",
+      "parent_span_id": "529e5dd02bdb1396",
+      "kind": "CONSUMER",
+      "start_time_unix_nano": 1773161170835370000,
+      "end_time_unix_nano": 1773161170836075000,
+      "attributes": {
+        "llmmas.source_agent.id": "Planner",
+        "llmmas.target_agent.id": "Coder",
+        "llmmas.edge.id": "Planner->Coder",
+        "llmmas.message.id": "msg-0001",
+        "llmmas.channel": "requirements",
+        "llmmas.message.preview": "\nImplementation Plan:\n\n1. Define the requirements and constraints of the Sudoku puzzle game, including the 9x9 grid, the use of each digit once in each row, column, and 3x3 subgrid, and the ability fo",
+        "llmmas.message.sha256": "d45f97bf17abe1a1137f82cd51cd966f0602050c58c6db13e19aad03eab3fb8d"
+      },
+      "events": [
+        {
+          "name": "a2a.message",
+          "timestamp_unix_nano": 1773161170836058000,
+          "attributes": {
+            "llmmas.message.id": "msg-0001",
+            "llmmas.message.preview": "\nImplementation Plan:\n\n1. Define the requirements and constraints of the Sudoku puzzle game, including the 9x9 grid, the use of each digit once in each row, column, and 3x3 subgrid, and the ability fo",
+            "llmmas.message.sha256": "d45f97bf17abe1a1137f82cd51cd966f0602050c58c6db13e19aad03eab3fb8d",
+            "llmmas.message.direction": "receive"
+          }
+        }
+      ],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "inference llama2",
+      "trace_id": "bee61eb7a17e5ae29f40a071c20a264b",
+      "span_id": "0121b9c6445f8284",
+      "parent_span_id": "529e5dd02bdb1396",
+      "kind": "CLIENT",
+      "start_time_unix_nano": 1773161170836284000,
+      "end_time_unix_nano": 1773161194156982000,
+      "attributes": {
+        "gen_ai.operation.name": "inference",
+        "gen_ai.provider.name": "ollama",
+        "gen_ai.request.model": "llama2",
+        "gen_ai.request.id": "llmreq-ae71967457b3",
+        "llmmas.llm.input.preview": "system: You are a software engineer. Produce: key files + functions + tests. Be concise.\nuser: Task:\nDevelop a classic Sudoku puzzle game that uses a 9x9 grid. Each row, column, and 3x3 subgrid must c",
+        "llmmas.llm.input.sha256": "702fb9010f2cd86886f62ca19bcbac54061356151094e4406753dcda7eadbd7c",
+        "llmmas.llm.output.preview": "Here are the key files, functions, and tests for the Sudoku puzzle game:\n\nKey Files:\n\n1. SudokuGame.java - The main class that implements the game logic and user interface.\n2. SudokuGrid.java - A clas",
+        "llmmas.llm.output.sha256": "86418afceb44e1b3ea6902b693b4788493db25d74f9704209ec6a3eb826bb8ac"
+      },
+      "events": [],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "agent_step",
+      "trace_id": "bee61eb7a17e5ae29f40a071c20a264b",
+      "span_id": "529e5dd02bdb1396",
+      "parent_span_id": "45d5f1f0db41fe63",
+      "kind": "INTERNAL",
+      "start_time_unix_nano": 1773161170835170000,
+      "end_time_unix_nano": 1773161194157036000,
+      "attributes": {
+        "llmmas.agent.id": "Coder",
+        "llmmas.step.index": 0
+      },
+      "events": [],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "llmmas.workflow.segment",
+      "trace_id": "bee61eb7a17e5ae29f40a071c20a264b",
+      "span_id": "45d5f1f0db41fe63",
+      "parent_span_id": "6b001f3b8bad8ff2",
+      "kind": "INTERNAL",
+      "start_time_unix_nano": 1773161170835103000,
+      "end_time_unix_nano": 1773161194157059000,
+      "attributes": {
+        "llmmas.segment.name": "coding",
+        "llmmas.segment.order": 1
+      },
+      "events": [],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    },
+    {
+      "name": "llmmas.session",
+      "trace_id": "bee61eb7a17e5ae29f40a071c20a264b",
+      "span_id": "6b001f3b8bad8ff2",
+      "parent_span_id": null,
+      "kind": "INTERNAL",
+      "start_time_unix_nano": 1773161150668351000,
+      "end_time_unix_nano": 1773161194157082000,
+      "attributes": {
+        "llmmas.session.id": "programdev-demo::Sudoku"
+      },
+      "events": [],
+      "status": {
+        "status_code": "StatusCode.UNSET",
+        "description": "None"
+      }
+    }
+  ]
+}
