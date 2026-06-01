@@ -102,6 +102,30 @@ class SpecFaultEngine(FaultEngine):
             meta = {"original_len": len(payload), "new_len": len(mutated), "max_chars": max_chars}
             return InjectionDecision.mutate(fault_id=spec.id, fault_type=t, mutated_payload=mutated, metadata=meta)
 
+        if t == "a2a.instruction_loss":
+            if payload is None:
+                return InjectionDecision.pass_through()
+            # HyperAgent A2A messages carry an instruction block labelled
+            # "Request:" — strip it, keep the surrounding Context block.
+            import re
+            mutated = re.sub(
+                r"Request\s*:\s*.*?(?=(\n\s*\n|\Z))",
+                "Request: [REDACTED]",
+                payload,
+                flags=re.DOTALL | re.IGNORECASE,
+            )
+            meta = {
+                "original_chars": len(payload),
+                "mutated_chars": len(mutated),
+                "strategy": "regex_strip_request_block",
+            }
+            return InjectionDecision.mutate(
+                fault_id=spec.id,
+                fault_type=t,
+                mutated_payload=mutated,
+                metadata=meta,
+            )
+
         # ---------------- TOOL faults ----------------
         if t == "tool.delay":
             ms = spec.action.params.get("delay_ms", spec.action.params.get("ms"))
