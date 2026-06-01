@@ -9,6 +9,7 @@ from .matcher import selector_matches
 from .spec import FaultSpec
 from .types import HookContext, InjectionDecision, DecisionKind
 from .exceptions import LLMRateLimitError, LLMNetworkError, LLMTimeoutError
+from .fixtures.a2a_templates import HALLUCINATION_TEMPLATES
 
 
 def _stable_coin_flip(probability: float, *, seed: str, session_id: str, fault_id: str, attempt: int) -> bool:
@@ -21,6 +22,10 @@ def _stable_coin_flip(probability: float, *, seed: str, session_id: str, fault_i
     digest = hashlib.sha256(raw).digest()
     v = int.from_bytes(digest[:8], "big") / 2**64
     return v < probability
+
+
+def _sha(s: str) -> str:
+    return hashlib.sha256((s or "").encode("utf-8")).hexdigest()
 
 
 @dataclass
@@ -123,6 +128,21 @@ class SpecFaultEngine(FaultEngine):
                 fault_id=spec.id,
                 fault_type=t,
                 mutated_payload=mutated,
+                metadata=meta,
+            )
+
+        if t == "a2a.hallucinate":
+            if payload is None:
+                return InjectionDecision.pass_through()
+            sender = ctx.source_agent_id or ""
+            template = HALLUCINATION_TEMPLATES.get(sender)
+            if template is None:
+                return InjectionDecision.pass_through()
+            meta = {"template_role": sender, "original_sha": _sha(payload)}
+            return InjectionDecision.mutate(
+                fault_id=spec.id,
+                fault_type=t,
+                mutated_payload=template,
                 metadata=meta,
             )
 
