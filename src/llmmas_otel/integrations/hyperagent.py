@@ -709,6 +709,18 @@ def _make_llm_create_wrapper(original: Callable[..., Any]) -> Callable[..., Any]
             },
         ) as ctx:
             try:
+                dec = default_span_factory.current_llm_call_decision()
+                if dec is not None:
+                    try:
+                        from llmmas_otel.injection import DecisionKind
+                    except Exception:
+                        DecisionKind = None  # type: ignore
+                    if DecisionKind is not None and dec.kind == DecisionKind.MUTATE_INPUT:
+                        mutator = dec.return_value
+                        try:
+                            sanitized_args, sanitized_kwargs = mutator(sanitized_args, sanitized_kwargs)
+                        except Exception as _e:
+                            ctx.span.set_attribute("llmmas.fault.error", f"mutator_failed: {_e}")
                 result = original(self, *sanitized_args, **sanitized_kwargs)
                 output_text = _infer_llm_output(result)
                 if output_text is not None:
