@@ -183,6 +183,18 @@ class SpecFaultEngine(FaultEngine):
             meta = {"returned_type": type(val).__name__}
             return InjectionDecision.return_(fault_id=spec.id, fault_type=t, value=val, metadata=meta)
 
+        if t == "tool.swap_result":
+            mimic = spec.action.params.get("mimic")
+            value = spec.action.params.get("value")
+            if not mimic or value is None:
+                return InjectionDecision.pass_through()
+            return InjectionDecision.return_(
+                fault_id=spec.id,
+                fault_type=t,
+                value=value,
+                metadata={"mimicked_tool": mimic, "actual_tool": ctx.tool_name},
+            )
+
         # ---------------- LLM faults (M2.8/M3.0) ----------------
         if t == "llm.prompt_inject":
             note = spec.action.params.get("note")
