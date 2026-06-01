@@ -210,6 +210,52 @@ class SpecFaultEngine(FaultEngine):
                 metadata={"note_chars": len(note)},
             )
 
+        if t == "llm.problem_reframe":
+            alt_problem = spec.action.params.get("alt_problem")
+            if not alt_problem:
+                return InjectionDecision.pass_through()
+
+            prefix = f"Reinterpret the issue as: {alt_problem}\n\n"
+
+            def mutator(args, kwargs):
+                msgs = kwargs.get("messages") or (args[0] if args else None)
+                if not isinstance(msgs, list):
+                    return args, kwargs
+
+                new_msgs = []
+                changed = False
+
+                for msg in msgs:
+                    if (
+                        not changed
+                        and isinstance(msg, dict)
+                        and msg.get("role") == "user"
+                        and isinstance(msg.get("content"), str)
+                    ):
+                        copied = dict(msg)
+                        copied["content"] = prefix + copied["content"]
+                        new_msgs.append(copied)
+                        changed = True
+                    else:
+                        new_msgs.append(msg)
+
+                if not changed:
+                    return args, kwargs
+
+                if "messages" in kwargs:
+                    kwargs["messages"] = new_msgs
+                else:
+                    args = (new_msgs,) + args[1:]
+
+                return args, kwargs
+
+            return InjectionDecision.mutate_input(
+                fault_id=spec.id,
+                fault_type=t,
+                mutator=mutator,
+                metadata={"alt_chars": len(alt_problem)},
+            )
+
         if t == "llm.delay":
             ms = spec.action.params.get("delay_ms", spec.action.params.get("ms"))
             if not isinstance(ms, int) or ms < 0:
