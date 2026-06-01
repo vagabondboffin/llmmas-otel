@@ -184,6 +184,32 @@ class SpecFaultEngine(FaultEngine):
             return InjectionDecision.return_(fault_id=spec.id, fault_type=t, value=val, metadata=meta)
 
         # ---------------- LLM faults (M2.8/M3.0) ----------------
+        if t == "llm.prompt_inject":
+            note = spec.action.params.get("note")
+            if not note:
+                return InjectionDecision.pass_through()
+
+            def mutator(args, kwargs):
+                msgs = kwargs.get("messages") or (args[0] if args else None)
+                if not isinstance(msgs, list):
+                    return args, kwargs
+
+                msgs = list(msgs) + [{"role": "system", "content": note}]
+
+                if "messages" in kwargs:
+                    kwargs["messages"] = msgs
+                else:
+                    args = (msgs,) + args[1:]
+
+                return args, kwargs
+
+            return InjectionDecision.mutate_input(
+                fault_id=spec.id,
+                fault_type=t,
+                mutator=mutator,
+                metadata={"note_chars": len(note)},
+            )
+
         if t == "llm.delay":
             ms = spec.action.params.get("delay_ms", spec.action.params.get("ms"))
             if not isinstance(ms, int) or ms < 0:
