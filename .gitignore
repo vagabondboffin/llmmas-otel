@@ -22,3 +22,7 @@ outputs/
 runs/
 traces/
 message_store.jsonl
+
+# macOS
+.DS_Store
+**/.DS_Store
