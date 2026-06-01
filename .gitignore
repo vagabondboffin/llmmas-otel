@@ -4,3 +4,21 @@ __pycache__/
 build/
 dist/
 *.egg-info/
+
+# Local environment
+.venv/
+.env
+.env.*
+*.log
+
+# Python cache
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Experiment/generated outputs
+outputs/
+runs/
+traces/
+message_store.jsonl
