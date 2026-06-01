@@ -47,6 +47,7 @@ class DecisionKind(str, Enum):
     MUTATE = "mutate"
     RAISE = "raise"
     RETURN = "return"
+    MUTATE_INPUT = "mutate_input"
 
 
 @dataclass(frozen=True)
@@ -116,5 +117,16 @@ class InjectionDecision:
             fault_id=fault_id,
             fault_type=fault_type,
             return_value=value,
+            metadata=metadata or {},
+        )
+
+    @staticmethod
+    def mutate_input(*, fault_id, fault_type, mutator, metadata=None):
+        """`mutator`: callable taking (args, kwargs) and returning the same shape."""
+        return InjectionDecision(
+            kind=DecisionKind.MUTATE_INPUT,
+            fault_id=fault_id,
+            fault_type=fault_type,
+            return_value=mutator,
             metadata=metadata or {},
         )

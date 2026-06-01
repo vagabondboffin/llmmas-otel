@@ -608,6 +608,13 @@ def observe_llm_call(
                     DecisionKind = None  # type: ignore
 
                 if dec is not None and DecisionKind is not None:
+                    if dec.kind == DecisionKind.MUTATE_INPUT:
+                        mutator = dec.return_value
+                        try:
+                            args, kwargs = mutator(args, kwargs)
+                        except Exception as e:
+                            ctx.span.set_attribute("llmmas.fault.error", f"mutator_failed: {e}")
+
                     if dec.kind == DecisionKind.RAISE:
                         exc = getattr(dec, "raise_exception", None) or RuntimeError("Injected LLM error")
                         try:
