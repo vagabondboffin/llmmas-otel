@@ -663,6 +663,9 @@ def _run_with_tool_fault_decision(fn: Callable[..., Any], ctx: Any, *args: Any, 
         DecisionKind = None  # type: ignore
 
     if dec is not None and DecisionKind is not None:
+        if dec.kind == DecisionKind.MUTATE_INPUT:
+            args, kwargs = dec.return_value(args, kwargs)
+
         if dec.kind == DecisionKind.RAISE:
             exc = getattr(dec, "raise_exception", None) or RuntimeError("Injected tool error")
             try:
